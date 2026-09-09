@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/health-record-envelope.v1.json",
+  "title": "GoreeCloud Health Record Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "record_type",
+    "interval",
+    "source",
+    "provenance",
+    "lifecycle",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "goreecloud.health.record.v1"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "record_type": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 96,
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"
+    },
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_time", "time_zone", "utc_offset_minutes"],
+      "properties": {
+        "start_time": {"type": "string", "format": "date-time"},
+        "end_time": {"type": "string", "format": "date-time"},
+        "time_zone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9._+-]+(?:/[A-Za-z0-9._+-]+)+$"
+        },
+        "utc_offset_minutes": {
+          "type": "integer",
+          "minimum": -840,
+          "maximum": 840
+        }
+      }
+    },
+    "source": {
+      "$ref": "./health-source.schema.json"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ingest_method", "observed_at", "transformed"],
+      "properties": {
+        "ingest_method": {
+          "type": "string",
+          "enum": ["synthetic-fixture", "health-connect", "manual-entry", "import"]
+        },
+        "observed_at": {"type": "string", "format": "date-time"},
+        "imported_at": {"type": "string", "format": "date-time"},
+        "transformed": {"type": "boolean"},
+        "transformation_notes": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["active", "superseded", "deleted"]
+        },
+        "supersedes_record_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        }
+      }
+    },
+    "payload": {
+      "type": "object"
+    }
+  }
+}

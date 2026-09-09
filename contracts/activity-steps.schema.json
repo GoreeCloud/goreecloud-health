@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/activity-steps.v1.json",
+  "title": "GoreeCloud Health Activity Steps v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "activity.steps"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count"],
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          }
+        }
+      }
+    }
+  ]
+}

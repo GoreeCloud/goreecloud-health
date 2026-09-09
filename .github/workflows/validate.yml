@@ -18,3 +18,5 @@ jobs:
           node-version: '22'
       - name: Validate repository foundation
         run: node scripts/validate-foundation.mjs
+      - name: Validate health record contract
+        run: node scripts/validate-health-record-contract.mjs
