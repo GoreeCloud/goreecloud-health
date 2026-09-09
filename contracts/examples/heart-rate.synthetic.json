@@ -1,0 +1,14 @@
+{
+  "schema_version": "goreecloud.health.record.v1",
+  "record_id": "synthetic.hr.20260909.001",
+  "record_type": "heart.rate",
+  "interval": {
+    "start_time": "2026-09-09T10:15:00-05:00",
+    "time_zone": "America/Chicago",
+    "utc_offset_minutes": -300
+  },
+  "source": {"source_id": "synthetic.fixture", "source_kind": "synthetic", "source_record_id": "hr-001"},
+  "provenance": {"ingest_method": "synthetic-fixture", "observed_at": "2026-09-09T15:15:00Z", "transformed": false},
+  "lifecycle": {"status": "active"},
+  "payload": {"value": 72, "unit": "bpm"}
+}

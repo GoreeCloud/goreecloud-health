@@ -2,46 +2,49 @@
 
 ## Status
 
-**Development source contract.** This contract defines a bounded normalization envelope and the first type-specific synthetic activity-steps record. It does not enable Health Connect, accept real health data, create persistence, authorize synchronization, or establish Privacy Shield, Wardveil Security, Everkeep, Identity, Mesh, Manager, or Stable release acceptance.
+**Development source contract.** This contract defines the bounded normalization envelope plus six synthetic-only type contracts. It does not enable Health Connect, accept real health data, create persistence, authorize synchronization, or establish Privacy Shield, Wardveil Security, Everkeep, Identity, Mesh, Manager, GLAZE UI, Release Candidate, Stable, or production acceptance.
 
 ## Purpose
 
-The contract gives GoreeCloud Health a stable, testable representation for record identity, observation time, source attribution, provenance, lifecycle state, and domain payload binding before any real health-data ingestion is introduced.
+The contract gives GoreeCloud Health a stable, testable representation for record identity, observation time, source attribution, provenance, lifecycle state, units where applicable, and domain payload binding before any real health-data ingestion is introduced.
 
-The repository-controlled schemas are:
+## Current type contracts
 
-- `contracts/health-source.schema.json` — source identity and source-kind contract.
-- `contracts/health-record-envelope.schema.json` — common record envelope.
-- `contracts/activity-steps.schema.json` — first type-specific payload contract.
-- `contracts/examples/activity-steps.synthetic.json` — synthetic validation fixture only.
+- `activity.steps` — count.
+- `activity.distance` — meters (`m`).
+- `sleep.session` — positive-duration interval; no stage payload is accepted yet.
+- `heart.rate` — beats per minute (`bpm`).
+- `body.weight` — kilograms (`kg`).
+- `hydration.water` — milliliters (`mL`).
+
+Every corresponding repository example is explicitly synthetic. Additional workout/exercise, sleep-stage, vital, body, nutrition, and wellbeing contracts remain open.
 
 ## Trust boundary
 
-Schema availability is not data-processing authorization. Before GoreeCloud Health can read or persist real user health information, applicable Privacy Shield purpose/consent/minimization/retention/export/deletion rules and platform permission requirements must be implemented and accepted. Health Connect remains unintegrated in this tranche.
+Schema availability is not data-processing authorization. Before GoreeCloud Health can read or persist real user health information, applicable Privacy Shield purpose/consent/minimization/retention/export/deletion/revocation/derived-use rules and platform permission requirements must be implemented and accepted. Health Connect remains unintegrated.
 
 ## Required invariants
 
 1. **Stable record identity.** `record_id` is an exact bounded opaque identifier; callers do not trim or normalize alternate spellings into the same record identity.
 2. **Explicit record type.** Domain payloads bind to a namespaced `record_type`. The common envelope alone does not make an arbitrary payload accepted.
-3. **Time context is preserved.** Records retain an offset-aware observation/interval time plus time-zone and UTC-offset context.
-4. **Source attribution is preserved.** Every record names a source and source kind. A source-native record identifier is retained when available.
-5. **Provenance is explicit.** Ingest method, observation time, and transformation state are recorded. Transformations must remain distinguishable from source-observed values.
-6. **Lifecycle is explicit.** Active, superseded, and deleted states are represented instead of silently erasing provenance.
-7. **Missing data stays missing.** The contract does not authorize synthetic estimates to be presented as measured values.
-8. **Unknown fields fail closed** in the governed envelope, source, and first steps payload contract.
+3. **Time context is preserved.** Records retain offset-aware time plus time-zone and UTC-offset context; session types can impose stricter positive-duration requirements.
+4. **Source attribution is preserved.** Every record names a source and source kind; source-native record identity is retained when available.
+5. **Provenance is explicit.** Ingest method, observation time, and transformation state are recorded.
+6. **Lifecycle is explicit.** Active, superseded, and deleted states are represented rather than silently erasing provenance.
+7. **Units are type-governed.** Measurement types use a single canonical source-level unit in their normalized payload while source-unit transformation/provenance obligations remain explicit.
+8. **Missing data stays missing.** No source contract authorizes synthetic estimates to be presented as measured values.
+9. **Unknown fields fail closed** in governed envelope, source, and type payload boundaries.
 
 ## Deterministic reconciliation baseline
 
-The initial reconciliation policy is intentionally conservative:
-
-- When a trustworthy `source_record_id` exists, the tuple `(source_id, source_record_id)` is the source-native identity used to detect exact re-observation of the same source record.
-- Records from different sources are **not** treated as duplicates merely because time and value happen to match.
-- A record without `source_record_id` is not silently deduplicated from another source by heuristic value/time equality.
-- Replacements and corrections use explicit lifecycle/supersession semantics; provenance is not rewritten to hide the prior source record.
-- Cross-source aggregation and domain-specific conflict resolution remain separate, type-specific work and must be approved before totals are calculated from multiple sources.
+- Trustworthy `(source_id, source_record_id)` identifies exact re-observation of the same source-native record.
+- Records from different sources are not treated as duplicates merely because time and value match.
+- A record without `source_record_id` is not silently deduplicated by heuristic value/time equality.
+- Replacements/corrections use explicit lifecycle/supersession semantics.
+- Cross-source aggregation and domain-specific conflict resolution remain separate work and must be approved before multi-source totals or derived values are calculated.
 
 ## Current validation
 
-`scripts/validate-health-record-contract.mjs` performs deterministic repository validation using only synthetic data. It checks schema structure, contract identifiers, closed object boundaries, the synthetic steps fixture, interval ordering, identifier policy, source/provenance binding, and negative cases for unknown fields, missing provenance, negative step counts, and reversed intervals.
+`scripts/validate-health-record-contract.mjs` uses only repository-owned synthetic data. It validates eight schema/contract files, six synthetic fixtures, shared record/source/provenance rules, type/unit boundaries, positive sleep-session duration, bounded measurements, and fail-closed negative cases.
 
-This validation is source-level evidence only. It is not representative-device, runtime health-provider, privacy, security, recovery, production, or medical acceptance.
+This is source-level evidence only. It is not representative-device, runtime health-provider, privacy, security, recovery, production, or medical acceptance.

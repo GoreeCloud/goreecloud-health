@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/sleep-session.v1.json",
+  "title": "GoreeCloud Health Sleep Session v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "sleep.session"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

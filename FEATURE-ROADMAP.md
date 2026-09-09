@@ -18,11 +18,12 @@ Status: **In progress**
 
 Status: **In progress**
 
-- **Development source checkpoint implemented:** define the canonical GoreeCloud Health record envelope and source/provenance schema, plus the first `activity.steps` payload contract and synthetic validation fixture. This remains source-level only and does not authorize real health-data processing.
-- Expand type-specific normalized contracts for exercise, sleep, heart/vitals, body measurements, nutrition/hydration, and supported wellbeing records.
+- **Implemented:** canonical `goreecloud.health.record.v1` envelope, source/provenance schema, conservative reconciliation baseline, and synthetic validation foundation.
+- **Implemented source contracts:** `activity.steps`, `activity.distance`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`, including canonical source-level units where applicable.
+- Expand type-specific normalized contracts for workouts/exercise sessions, active time/energy, sleep stages, additional vitals, additional body measurements, broader nutrition, and supported wellbeing records.
 - Govern domain-specific reconciliation and aggregation rules on top of the conservative baseline that forbids silent cross-source deduplication by matching value/time alone.
-- Implement Privacy Shield health-data purpose, consent, minimization, retention, export, and deletion boundaries.
-- Integrate Android Health Connect with least-privilege, user-visible permissions.
+- Implement Privacy Shield health-data purpose, consent, minimization, retention, export, deletion, revocation, and derived-use boundaries.
+- Integrate Android Health Connect with least-privilege, user-visible permissions only after the Privacy Shield boundary is accepted.
 - Read supported activity, exercise, sleep, heart, and body measurements locally.
 - Add local encrypted persistence appropriate to the accepted platform security/privacy model.
 - Implement data-source management and permission revocation flows.

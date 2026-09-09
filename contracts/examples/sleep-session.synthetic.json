@@ -1,0 +1,15 @@
+{
+  "schema_version": "goreecloud.health.record.v1",
+  "record_id": "synthetic.sleep.20260909.001",
+  "record_type": "sleep.session",
+  "interval": {
+    "start_time": "2026-09-08T22:30:00-05:00",
+    "end_time": "2026-09-09T06:30:00-05:00",
+    "time_zone": "America/Chicago",
+    "utc_offset_minutes": -300
+  },
+  "source": {"source_id": "synthetic.fixture", "source_kind": "synthetic", "source_record_id": "sleep-001"},
+  "provenance": {"ingest_method": "synthetic-fixture", "observed_at": "2026-09-09T12:00:00Z", "transformed": false},
+  "lifecycle": {"status": "active"},
+  "payload": {}
+}

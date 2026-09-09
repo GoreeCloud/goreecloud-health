@@ -1,0 +1,14 @@
+{
+  "schema_version": "goreecloud.health.record.v1",
+  "record_id": "synthetic.water.20260909.001",
+  "record_type": "hydration.water",
+  "interval": {
+    "start_time": "2026-09-09T11:00:00-05:00",
+    "time_zone": "America/Chicago",
+    "utc_offset_minutes": -300
+  },
+  "source": {"source_id": "synthetic.fixture", "source_kind": "synthetic", "source_record_id": "water-001"},
+  "provenance": {"ingest_method": "synthetic-fixture", "observed_at": "2026-09-09T16:00:00Z", "transformed": false},
+  "lifecycle": {"status": "active"},
+  "payload": {"value": 350, "unit": "mL"}
+}

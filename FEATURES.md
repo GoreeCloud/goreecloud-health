@@ -17,18 +17,19 @@ This document records **current repository functionality**, not the desired end 
 
 - Versioned `goreecloud.health.record.v1` normalization envelope for stable record identity, time context, source attribution, provenance, lifecycle state, and a domain payload binding point.
 - Closed `health-source.v1` source identity/source-kind contract.
-- First type-specific `activity.steps` schema with a non-negative bounded integer count.
-- Synthetic-only activity-steps fixture used for repository validation; it is not user health data.
-- Fail-closed contract validation covering unknown fields, missing provenance, invalid step counts, reversed intervals, and noncanonical record identifiers.
+- Type-specific schemas for `activity.steps`, `activity.distance`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`.
+- Canonical source-level units where applicable: distance in meters (`m`), heart rate in beats per minute (`bpm`), body weight in kilograms (`kg`), and water volume in milliliters (`mL`).
+- Synthetic-only fixtures for all six currently supported source-contract types; none are user health data.
+- Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, and bounded measurement values.
 - Conservative reconciliation baseline that does not infer duplicates across different sources merely from matching values and times.
 
-These contracts are source-level foundations only. They do **not** authorize or implement real health-data ingestion, persistence, synchronization, aggregation, or medical interpretation.
+These contracts are source-level foundations only. They do **not** authorize or implement real health-data ingestion, persistence, synchronization, aggregation, diagnosis, or medical interpretation.
 
 ## Not implemented yet
 
 - Android Health Connect read/write integration.
-- Step/workout/sleep/heart/body/nutrition ingestion from real user sources.
-- Type-specific normalized contracts for exercise, sleep, heart/vitals, body, nutrition/hydration, and wellbeing records beyond the first steps contract.
+- Step/distance/sleep/heart/body/hydration ingestion from real user sources.
+- Type-specific normalized contracts for workouts/exercise sessions, active time/energy, sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
 - Approved cross-source aggregation/conflict-resolution rules beyond the conservative no-silent-deduplication baseline.
 - Manual health entry.
 - Health goals and trend calculations.
