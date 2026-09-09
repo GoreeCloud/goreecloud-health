@@ -17,9 +17,10 @@ This document records **current repository functionality**, not the desired end 
 
 - Versioned `goreecloud.health.record.v1` normalization envelope for stable record identity, time context, source attribution, provenance, lifecycle state, and a domain payload binding point.
 - Closed `health-source.v1` source identity/source-kind contract.
-- Type-specific schemas for `activity.steps`, `activity.distance`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`.
+- Type-specific schemas for `activity.steps`, `activity.distance`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`.
+- `exercise.session` is currently a positive-duration session boundary with an intentionally empty payload; exercise classification/detail semantics are not inferred yet.
 - Canonical source-level units where applicable: distance in meters (`m`), heart rate in beats per minute (`bpm`), body weight in kilograms (`kg`), and water volume in milliliters (`mL`).
-- Synthetic-only fixtures for all six currently supported source-contract types; none are user health data.
+- Synthetic-only fixtures for all seven currently supported source-contract types; none are user health data.
 - Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, and bounded measurement values.
 - Conservative reconciliation baseline that does not infer duplicates across different sources merely from matching values and times.
 
@@ -28,8 +29,9 @@ These contracts are source-level foundations only. They do **not** authorize or 
 ## Not implemented yet
 
 - Android Health Connect read/write integration.
-- Step/distance/sleep/heart/body/hydration ingestion from real user sources.
-- Type-specific normalized contracts for workouts/exercise sessions, active time/energy, sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
+- Step/distance/exercise/sleep/heart/body/hydration ingestion from real user sources.
+- Exercise classification/detail payloads beyond the bounded `exercise.session` interval contract.
+- Type-specific normalized contracts for active time/energy, sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
 - Approved cross-source aggregation/conflict-resolution rules beyond the conservative no-silent-deduplication baseline.
 - Manual health entry.
 - Health goals and trend calculations.

@@ -6,7 +6,7 @@ GoreeCloud Health is a personal health and wellness application for the GoreeClo
 
 ## Lifecycle
 
-**Development — Foundation / trusted-record source work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. Bounded canonical health-record/source/provenance and core measurement contracts are implemented at source level and validated only with synthetic data.
+**Development — Foundation / trusted-record source work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. Bounded canonical health-record/source/provenance and core measurement/session contracts are implemented at source level and validated only with synthetic data.
 
 ## Architectural baseline
 
@@ -29,12 +29,13 @@ Current type-specific source contracts are:
 
 - `activity.steps` — bounded non-negative step count.
 - `activity.distance` — bounded distance using canonical source-level unit `m`.
+- `exercise.session` — positive-duration exercise interval with a deliberately empty payload until governed exercise classification/detail semantics are defined.
 - `sleep.session` — positive-duration sleep interval with a deliberately empty payload until governed stage semantics are defined.
 - `heart.rate` — bounded integer measurement using canonical source-level unit `bpm`.
 - `body.weight` — positive bounded measurement using canonical source-level unit `kg`.
 - `hydration.water` — positive bounded water volume using canonical source-level unit `mL`.
 
-All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. Additional workout, stage, vital, body, nutrition, and wellbeing contracts remain planned rather than inferred from these types.
+All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. Exercise classification/details beyond the session boundary plus active-time/energy, sleep-stage, additional vital/body, broader nutrition, and wellbeing contracts remain planned rather than inferred from these types.
 
 Initial reconciliation is deliberately conservative: trustworthy `(source_id, source_record_id)` identifies an exact source-native record when available; records from different sources are not silently deduplicated because time/value match; and cross-source aggregation/conflict resolution requires separately governed domain-specific rules.
 
