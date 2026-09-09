@@ -2,11 +2,11 @@
 
 ## Status
 
-**Development source contract.** This contract defines the bounded normalization envelope plus seven synthetic-only type contracts. It does not enable Health Connect, accept real health data, create persistence, authorize synchronization, or establish Privacy Shield, Wardveil Security, Everkeep, Identity, Mesh, Manager, GLAZE UI, Release Candidate, Stable, or production acceptance.
+**Development source contract.** This contract defines the bounded normalization envelope plus seven synthetic-only type contracts and a fail-closed machine-readable reconciliation policy. It does not enable Health Connect, accept real health data, create persistence, authorize synchronization, or establish Privacy Shield, Wardveil Security, Everkeep, Identity, Mesh, Manager, GLAZE UI, Release Candidate, Stable, or production acceptance.
 
 ## Purpose
 
-The contract gives GoreeCloud Health a stable, testable representation for record identity, observation time, source attribution, provenance, lifecycle state, units where applicable, and domain payload binding before any real health-data ingestion is introduced.
+The contract gives GoreeCloud Health a stable, testable representation for record identity, observation time, source attribution, provenance, lifecycle state, units where applicable, domain payload binding, and conservative reconciliation before any real health-data ingestion is introduced.
 
 ## Current type contracts
 
@@ -22,7 +22,7 @@ Every corresponding repository example is explicitly synthetic. Exercise classif
 
 ## Trust boundary
 
-Schema availability is not data-processing authorization. Before GoreeCloud Health can read or persist real user health information, applicable Privacy Shield purpose/consent/minimization/retention/export/deletion/revocation/derived-use rules and platform permission requirements must be implemented and accepted. Health Connect remains unintegrated.
+Schema and reconciliation-policy availability is not data-processing authorization. Before GoreeCloud Health can read or persist real user health information, applicable Privacy Shield purpose/consent/minimization/retention/export/deletion/revocation/derived-use rules and platform permission requirements must be implemented and accepted. Health Connect remains unintegrated.
 
 ## Required invariants
 
@@ -34,18 +34,23 @@ Schema availability is not data-processing authorization. Before GoreeCloud Heal
 6. **Lifecycle is explicit.** Active, superseded, and deleted states are represented rather than silently erasing provenance.
 7. **Units are type-governed.** Measurement types use a single canonical source-level unit in their normalized payload while source-unit transformation/provenance obligations remain explicit.
 8. **Missing data stays missing.** No source contract authorizes synthetic estimates to be presented as measured values.
-9. **Unknown fields fail closed** in governed envelope, source, and type payload boundaries.
+9. **Unknown fields fail closed** in governed envelope, source, type-payload, and reconciliation-policy boundaries.
 
-## Deterministic reconciliation baseline
+## Deterministic reconciliation policy
+
+`contracts/health-reconciliation-policy.v1.json` makes the current conservative baseline machine-readable and fail-closed for exactly the seven current source-contract types.
 
 - Trustworthy `(source_id, source_record_id)` identifies exact re-observation of the same source-native record.
-- Records from different sources are not treated as duplicates merely because time and value match.
 - A record without `source_record_id` is not silently deduplicated by heuristic value/time equality.
-- Replacements/corrections use explicit lifecycle/supersession semantics.
-- Cross-source aggregation and domain-specific conflict resolution remain separate work and must be approved before multi-source totals or derived values are calculated.
+- Records from different sources are not treated as duplicates merely because time and value match.
+- Cross-source aggregation remains explicitly unauthorized.
+- Cross-source conflict resolution remains explicitly unauthorized.
+- Replacements/corrections use explicit lifecycle/supersession semantics only.
+
+This policy deliberately does not invent domain-specific aggregation or conflict semantics. A future rule that combines, prefers, suppresses, or derives values across sources requires a separately governed policy change, type-specific semantics, and validation before use.
 
 ## Current validation
 
-`scripts/validate-health-record-contract.mjs` uses only repository-owned synthetic data. It validates nine schema/contract files, seven synthetic fixtures, shared record/source/provenance rules, type/unit boundaries, positive exercise/sleep session durations, bounded measurements, and fail-closed negative cases including rejection of ungoverned exercise payload fields.
+`scripts/validate-health-record-contract.mjs` uses only repository-owned synthetic data and source declarations. It validates nine schema/contract files, seven synthetic fixtures, the reconciliation policy, shared record/source/provenance rules, type/unit boundaries, positive exercise/sleep session durations, bounded measurements, and fail-closed negative cases. Reconciliation-policy negative tests reject enabling cross-source aggregation and reject silently expanding the policy to an ungoverned record type.
 
 This is source-level evidence only. It is not representative-device, runtime health-provider, privacy, security, recovery, production, or medical acceptance.
