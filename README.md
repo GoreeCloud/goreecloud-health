@@ -20,7 +20,7 @@ The current foundation introduces a responsive web application shell and an Andr
 - Web navigation for Today, Trends, Data, and Settings foundation surfaces.
 - Android Compose Today screen with explicit unconnected-data state.
 - Repository-level product, security, roadmap, branding, and platform-contract documentation.
-- Versioned source-level `goreecloud.health.record.v1` envelope, source contract, first `activity.steps` payload contract, synthetic fixture, and fail-closed validation.
+- Versioned source-level `goreecloud.health.record.v1` envelope and source contract plus seven current type contracts: `activity.steps`, `activity.distance`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`; all current fixtures are synthetic and fail-closed validation is repository-owned.
 
 ## Repository layout
 

@@ -36,14 +36,14 @@ Mesh may coordinate minimized state/evidence but does not become health-data aut
 
 ## Record contract v1
 
-The first repository-controlled normalization contract is implemented under `contracts/`:
+The repository-controlled normalization contract is implemented under `contracts/`:
 
 - `health-source.schema.json` defines exact bounded source identity/source kind.
 - `health-record-envelope.schema.json` defines `goreecloud.health.record.v1` record identity, time context, source, provenance, lifecycle, and payload binding.
-- `activity-steps.schema.json` is the first type-specific payload contract.
-- `examples/activity-steps.synthetic.json` is synthetic validation data only.
+- Current type contracts are `activity-steps.schema.json`, `activity-distance.schema.json`, `exercise-session.schema.json`, `sleep-session.schema.json`, `heart-rate.schema.json`, `body-weight.schema.json`, and `hydration-water.schema.json`.
+- All corresponding files under `contracts/examples/` are repository-owned synthetic validation data only.
 
-The common envelope deliberately does not make arbitrary domain payloads supported. Each health record family must receive a type-specific contract and validation before its data can be treated as normalized GoreeCloud Health input.
+The common envelope deliberately does not make arbitrary domain payloads supported. Each health record family must receive a type-specific contract and validation before its data can be treated as normalized GoreeCloud Health input. The current `exercise.session` and `sleep.session` contracts deliberately accept empty payloads only and require positive-duration intervals; exercise classification/details and sleep-stage semantics remain ungoverned rather than inferred.
 
 The current reconciliation baseline preserves source-native identity where available and forbids silent cross-source deduplication based only on matching time/value. Domain-specific aggregation and conflict resolution remain separate work.
 

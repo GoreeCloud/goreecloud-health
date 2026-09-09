@@ -1,0 +1,15 @@
+{
+  "schema_version": "goreecloud.health.record.v1",
+  "record_id": "synthetic.exercise.20260909.001",
+  "record_type": "exercise.session",
+  "interval": {
+    "start_time": "2026-09-09T07:00:00-05:00",
+    "end_time": "2026-09-09T07:45:00-05:00",
+    "time_zone": "America/Chicago",
+    "utc_offset_minutes": -300
+  },
+  "source": {"source_id": "synthetic.fixture", "source_kind": "synthetic", "source_record_id": "exercise-001"},
+  "provenance": {"ingest_method": "synthetic-fixture", "observed_at": "2026-09-09T12:45:00Z", "transformed": false},
+  "lifecycle": {"status": "active"},
+  "payload": {}
+}

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Development source contract.** This contract defines the bounded normalization envelope plus six synthetic-only type contracts. It does not enable Health Connect, accept real health data, create persistence, authorize synchronization, or establish Privacy Shield, Wardveil Security, Everkeep, Identity, Mesh, Manager, GLAZE UI, Release Candidate, Stable, or production acceptance.
+**Development source contract.** This contract defines the bounded normalization envelope plus seven synthetic-only type contracts. It does not enable Health Connect, accept real health data, create persistence, authorize synchronization, or establish Privacy Shield, Wardveil Security, Everkeep, Identity, Mesh, Manager, GLAZE UI, Release Candidate, Stable, or production acceptance.
 
 ## Purpose
 
@@ -12,12 +12,13 @@ The contract gives GoreeCloud Health a stable, testable representation for recor
 
 - `activity.steps` — count.
 - `activity.distance` — meters (`m`).
+- `exercise.session` — positive-duration interval; no exercise classification/detail payload is accepted yet.
 - `sleep.session` — positive-duration interval; no stage payload is accepted yet.
 - `heart.rate` — beats per minute (`bpm`).
 - `body.weight` — kilograms (`kg`).
 - `hydration.water` — milliliters (`mL`).
 
-Every corresponding repository example is explicitly synthetic. Additional workout/exercise, sleep-stage, vital, body, nutrition, and wellbeing contracts remain open.
+Every corresponding repository example is explicitly synthetic. Exercise classification/details beyond the bounded session contract, active time/energy, sleep-stage, additional vital/body, broader nutrition, and wellbeing contracts remain open.
 
 ## Trust boundary
 
@@ -45,6 +46,6 @@ Schema availability is not data-processing authorization. Before GoreeCloud Heal
 
 ## Current validation
 
-`scripts/validate-health-record-contract.mjs` uses only repository-owned synthetic data. It validates eight schema/contract files, six synthetic fixtures, shared record/source/provenance rules, type/unit boundaries, positive sleep-session duration, bounded measurements, and fail-closed negative cases.
+`scripts/validate-health-record-contract.mjs` uses only repository-owned synthetic data. It validates nine schema/contract files, seven synthetic fixtures, shared record/source/provenance rules, type/unit boundaries, positive exercise/sleep session durations, bounded measurements, and fail-closed negative cases including rejection of ungoverned exercise payload fields.
 
 This is source-level evidence only. It is not representative-device, runtime health-provider, privacy, security, recovery, production, or medical acceptance.
