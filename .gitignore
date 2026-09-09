@@ -1,0 +1,26 @@
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.iml
+
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Web / tooling
+node_modules/
+dist/
+coverage/
+*.log
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
