@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/heart-rate.v1.json",
+  "title": "GoreeCloud Health Heart Rate v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "heart.rate"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {"type": "integer", "minimum": 1, "maximum": 300},
+            "unit": {"const": "bpm"}
+          }
+        }
+      }
+    }
+  ]
+}

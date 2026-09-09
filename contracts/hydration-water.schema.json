@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/hydration-water.v1.json",
+  "title": "GoreeCloud Health Hydration Water v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "hydration.water"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {"type": "number", "exclusiveMinimum": 0, "maximum": 100000},
+            "unit": {"const": "mL"}
+          }
+        }
+      }
+    }
+  ]
+}
