@@ -13,8 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify source revision
+        shell: bash
+        run: |
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          actual="$(git rev-parse HEAD)"
+          if [ "$actual" != "$expected" ]; then
+            echo "Expected source revision $expected but checked out $actual" >&2
+            exit 1
+          fi
+          echo "Validated exact source revision: $actual"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Validate repository foundation
         run: node scripts/validate-foundation.mjs
+      - name: Validate health record contract
+        run: node scripts/validate-health-record-contract.mjs

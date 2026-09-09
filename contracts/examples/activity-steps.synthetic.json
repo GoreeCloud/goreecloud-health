@@ -1,0 +1,28 @@
+{
+  "schema_version": "goreecloud.health.record.v1",
+  "record_id": "synthetic.steps.20260909.001",
+  "record_type": "activity.steps",
+  "interval": {
+    "start_time": "2026-09-09T08:00:00-05:00",
+    "end_time": "2026-09-09T09:00:00-05:00",
+    "time_zone": "America/Chicago",
+    "utc_offset_minutes": -300
+  },
+  "source": {
+    "source_id": "synthetic.fixture",
+    "source_kind": "synthetic",
+    "source_record_id": "steps-001",
+    "source_display_name": "Synthetic validation fixture"
+  },
+  "provenance": {
+    "ingest_method": "synthetic-fixture",
+    "observed_at": "2026-09-09T14:00:00Z",
+    "transformed": false
+  },
+  "lifecycle": {
+    "status": "active"
+  },
+  "payload": {
+    "count": 1234
+  }
+}

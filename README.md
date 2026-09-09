@@ -6,7 +6,7 @@ GoreeCloud Health is the GoreeCloud personal health and wellness application. Th
 
 **Lifecycle:** Development — Foundation
 
-The current foundation introduces a responsive web application shell and an Android Jetpack Compose application shell. Both deliberately show empty/unconnected health state. This repository does **not** currently collect real health data, request Android Health Connect permissions, synchronize health data to a GoreeCloud backend, provide medical diagnosis, or claim accepted Privacy Shield, Wardveil Security, Everkeep, GoreeCloud Identity, Mesh, Manager, or Glaze UI consumer conformance.
+The current foundation introduces a responsive web application shell and an Android Jetpack Compose application shell. Both deliberately show empty/unconnected health state. The repository also contains a Development-only canonical health-record/source/provenance contract validated with synthetic data. This repository does **not** currently collect real health data, request Android Health Connect permissions, persist or synchronize health data, provide medical diagnosis, or claim accepted Privacy Shield, Wardveil Security, Everkeep, GoreeCloud Identity, Mesh, Manager, or Glaze UI consumer conformance.
 
 ## Initial platforms
 
@@ -20,12 +20,14 @@ The current foundation introduces a responsive web application shell and an Andr
 - Web navigation for Today, Trends, Data, and Settings foundation surfaces.
 - Android Compose Today screen with explicit unconnected-data state.
 - Repository-level product, security, roadmap, branding, and platform-contract documentation.
+- Versioned source-level `goreecloud.health.record.v1` envelope, source contract, first `activity.steps` payload contract, synthetic fixture, and fail-closed validation.
 
 ## Repository layout
 
 - `apps/web/` — dependency-free responsive web foundation.
 - `apps/android/` — native Android Jetpack Compose foundation.
-- `docs/` — architecture, privacy, and design-system adoption records.
+- `contracts/` — Development health-record/source/type contracts and synthetic fixtures; no real user data.
+- `docs/` — architecture, privacy, design-system adoption, and health-record contract records.
 - `scripts/` — repository validation.
 
 ## Run the web foundation
@@ -35,6 +37,14 @@ python3 -m http.server 4173 -d apps/web
 ```
 
 Then open `http://localhost:4173`.
+
+## Validate the record contract
+
+```bash
+node scripts/validate-health-record-contract.mjs
+```
+
+This uses only repository-owned synthetic fixture data. Passing it does not establish Health Connect, privacy/security, recovery, runtime-provider, production, or Stable acceptance.
 
 ## Android development
 
@@ -63,6 +73,7 @@ The Android source targets Android 16 / API 36 and uses Kotlin with Jetpack Comp
 - [User manual](USER-MANUAL.md)
 - [Security](SECURITY.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Health record contract](docs/HEALTH-RECORD-CONTRACT.md)
 - [Privacy boundary](docs/PRIVACY.md)
 - [Glaze UI adoption](docs/GLAZE-UI-ADOPTION.md)
 

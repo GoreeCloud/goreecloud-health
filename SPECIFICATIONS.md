@@ -6,7 +6,7 @@ GoreeCloud Health is a personal health and wellness application for the GoreeClo
 
 ## Lifecycle
 
-**Development — Foundation.** Current implementation is limited to web and Android presentation shells with no real health-data ingestion or cloud persistence.
+**Development — Foundation / trusted-record source work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. A bounded canonical health-record/source/provenance contract is now implemented at source level and validated only with synthetic data.
 
 ## Architectural baseline
 
@@ -14,9 +14,28 @@ The repository is a monorepo with platform-specific applications:
 
 - `apps/web` — responsive web client.
 - `apps/android` — native Kotlin/Jetpack Compose client.
+- `contracts` — repository-controlled health normalization contracts and synthetic fixtures; these do not create data-processing authority.
 - A shared backend/API is **not implemented** in the foundation. It will be introduced only when identity, privacy, security, data-lifecycle, and recovery requirements are defined and accepted.
 
 The preferred long-term direction is local-first processing where practical, with server synchronization limited to declared, authorized purposes.
+
+## Health record contract
+
+The current Development contract uses schema version `goreecloud.health.record.v1` and separates common record-envelope semantics from type-specific payload semantics.
+
+The common envelope requires:
+
+- exact stable record identity;
+- namespaced record type;
+- offset-aware start/observation timing with time-zone and UTC-offset context;
+- explicit source identity and source kind;
+- provenance including ingest method, observation time, and transformation state;
+- explicit active/superseded/deleted lifecycle state; and
+- a payload that must be accepted by a type-specific contract before that record type is considered supported.
+
+The first type-specific contract is `activity.steps`. It exists solely as a Development source contract and synthetic validation fixture. No Health Connect or real user record is read by this implementation.
+
+Initial reconciliation is deliberately conservative: trustworthy `(source_id, source_record_id)` identifies an exact source-native record when available; records from different sources are not silently deduplicated because time/value match; and cross-source aggregation/conflict resolution requires separately governed domain-specific rules.
 
 ## Planned health domains
 
@@ -38,6 +57,7 @@ The product roadmap covers these health-domain families, each requiring source p
 4. Time zone, unit, precision, and source semantics must be retained or transformed explicitly.
 5. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
 6. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
+7. Schema validity is not authorization to collect, retain, disclose, synchronize, aggregate, or interpret health information.
 
 ## Medical-safety boundary
 
@@ -65,4 +85,4 @@ All seven integral systems are applicable to the long-term product. Current stat
 
 ## Acceptance boundary
 
-A feature is not considered implemented merely because it appears in this specification or roadmap. Current implementation truth is recorded in `FEATURES.md`; planned work is recorded in `FEATURE-ROADMAP.md`.
+A feature is not considered implemented merely because it appears in this specification or roadmap. Current implementation truth is recorded in `FEATURES.md`; planned work is recorded in `FEATURE-ROADMAP.md`. The source-level health-record contract is not runtime provider, privacy, security, persistence, synchronization, recovery, production, or Stable acceptance.
