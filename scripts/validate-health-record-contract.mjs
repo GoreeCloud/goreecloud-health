@@ -10,6 +10,7 @@ const paths = {
   heartRate: 'contracts/heart-rate.schema.json',
   bodyWeight: 'contracts/body-weight.schema.json',
   water: 'contracts/hydration-water.schema.json',
+  reconciliationPolicy: 'contracts/health-reconciliation-policy.v1.json',
   fixtures: {
     steps: 'contracts/examples/activity-steps.synthetic.json',
     distance: 'contracts/examples/activity-distance.synthetic.json',
@@ -22,8 +23,8 @@ const paths = {
 };
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
-const [sourceSchema, envelopeSchema, stepsSchema, distanceSchema, exerciseSchema, sleepSchema, heartRateSchema, bodyWeightSchema, waterSchema] = await Promise.all([
-  readJson(paths.source), readJson(paths.envelope), readJson(paths.steps), readJson(paths.distance), readJson(paths.exercise), readJson(paths.sleep), readJson(paths.heartRate), readJson(paths.bodyWeight), readJson(paths.water)
+const [sourceSchema, envelopeSchema, stepsSchema, distanceSchema, exerciseSchema, sleepSchema, heartRateSchema, bodyWeightSchema, waterSchema, reconciliationPolicy] = await Promise.all([
+  readJson(paths.source), readJson(paths.envelope), readJson(paths.steps), readJson(paths.distance), readJson(paths.exercise), readJson(paths.sleep), readJson(paths.heartRate), readJson(paths.bodyWeight), readJson(paths.water), readJson(paths.reconciliationPolicy)
 ]);
 const fixtures = Object.fromEntries(await Promise.all(Object.entries(paths.fixtures).map(async ([name, path]) => [name, await readJson(path)])));
 
@@ -32,6 +33,12 @@ const expect = (condition, message) => { if (!condition) fail(message); };
 const hasOnly = (value, allowed, context) => {
   expect(value && typeof value === 'object' && !Array.isArray(value), `${context} must be an object`);
   for (const key of Object.keys(value)) expect(allowed.includes(key), `${context} contains unknown field: ${key}`);
+};
+const hasExactKeys = (value, expected, context) => {
+  hasOnly(value, expected, context);
+  const actual = Object.keys(value).sort();
+  const wanted = [...expected].sort();
+  expect(JSON.stringify(actual) === JSON.stringify(wanted), `${context} must contain exactly: ${wanted.join(', ')}`);
 };
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const recordTypePattern = /^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$/;
@@ -87,6 +94,40 @@ function validateHeartRate(record) { exactPayload(record, 'heart.rate', ['value'
 function validateBodyWeight(record) { exactPayload(record, 'body.weight', ['value', 'unit']); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value > 0 && record.payload.value <= 1000, 'body weight must be bounded'); expect(record.payload.unit === 'kg', 'body weight unit must be kg'); }
 function validateWater(record) { exactPayload(record, 'hydration.water', ['value', 'unit']); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value > 0 && record.payload.value <= 100000, 'water value must be bounded'); expect(record.payload.unit === 'mL', 'water unit must be mL'); }
 
+const currentRecordTypes = [
+  'activity.steps',
+  'activity.distance',
+  'exercise.session',
+  'sleep.session',
+  'heart.rate',
+  'body.weight',
+  'hydration.water'
+];
+
+function validateReconciliationPolicy(policy) {
+  hasExactKeys(policy, ['schema_version', 'status', 'applies_to_record_types', 'exact_source_identity', 'missing_source_record_id', 'cross_source', 'lifecycle_replacement'], 'reconciliation policy');
+  expect(policy.schema_version === 'goreecloud.health.reconciliation-policy.v1', 'reconciliation policy schema_version mismatch');
+  expect(policy.status === 'development-source-policy', 'reconciliation policy must remain Development source policy');
+  expect(Array.isArray(policy.applies_to_record_types), 'reconciliation policy record types must be an array');
+  expect(JSON.stringify(policy.applies_to_record_types) === JSON.stringify(currentRecordTypes), 'reconciliation policy must cover exactly the seven current record types');
+
+  hasExactKeys(policy.exact_source_identity, ['key', 'requires_source_record_id', 'result'], 'exact_source_identity');
+  expect(JSON.stringify(policy.exact_source_identity.key) === JSON.stringify(['source.source_id', 'source.source_record_id']), 'exact source identity key must remain source_id + source_record_id');
+  expect(policy.exact_source_identity.requires_source_record_id === true, 'exact source identity must require source_record_id');
+  expect(policy.exact_source_identity.result === 'same-source-reobservation', 'exact source identity result mismatch');
+
+  hasExactKeys(policy.missing_source_record_id, ['heuristic_deduplication'], 'missing_source_record_id');
+  expect(policy.missing_source_record_id.heuristic_deduplication === 'not-authorized', 'records without source_record_id must not be heuristically deduplicated');
+
+  hasExactKeys(policy.cross_source, ['value_time_deduplication', 'aggregation', 'conflict_resolution'], 'cross_source');
+  expect(policy.cross_source.value_time_deduplication === 'not-authorized', 'cross-source value/time deduplication must remain unauthorized');
+  expect(policy.cross_source.aggregation === 'not-authorized', 'cross-source aggregation must remain unauthorized');
+  expect(policy.cross_source.conflict_resolution === 'not-authorized', 'cross-source conflict resolution must remain unauthorized');
+
+  hasExactKeys(policy.lifecycle_replacement, ['mode'], 'lifecycle_replacement');
+  expect(policy.lifecycle_replacement.mode === 'explicit-supersession-only', 'replacement must remain explicit supersession only');
+}
+
 const schemaChecks = [
   [sourceSchema, 'https://goreecloud.com/schemas/health/health-source.v1.json', null],
   [envelopeSchema, 'https://goreecloud.com/schemas/health/health-record-envelope.v1.json', null],
@@ -113,6 +154,7 @@ validateSleep(fixtures.sleep);
 validateHeartRate(fixtures.heartRate);
 validateBodyWeight(fixtures.bodyWeight);
 validateWater(fixtures.water);
+validateReconciliationPolicy(reconciliationPolicy);
 
 const negatives = [
   ['unknown record field', validateSteps, { ...structuredClone(fixtures.steps), unexpected: true }],
@@ -132,4 +174,14 @@ for (const [name, validator, candidate] of negatives) {
   expect(rejected, `negative case must fail closed: ${name}`);
 }
 
-console.log('Validated GoreeCloud Health record contracts: 9 schemas/contracts, 7 synthetic fixtures, and 10 fail-closed negative cases.');
+const reconciliationNegatives = [
+  ['cross-source aggregation enabled', (() => { const x = structuredClone(reconciliationPolicy); x.cross_source.aggregation = 'allowed'; return x; })()],
+  ['ungoverned record type added', (() => { const x = structuredClone(reconciliationPolicy); x.applies_to_record_types.push('activity.active-time'); return x; })()]
+];
+for (const [name, candidate] of reconciliationNegatives) {
+  let rejected = false;
+  try { validateReconciliationPolicy(candidate); } catch { rejected = true; }
+  expect(rejected, `reconciliation policy negative case must fail closed: ${name}`);
+}
+
+console.log('Validated GoreeCloud Health record contracts: 9 schemas/contracts, 1 reconciliation policy, 7 synthetic fixtures, 10 record negative cases, and 2 reconciliation-policy negative cases.');
