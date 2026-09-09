@@ -6,10 +6,13 @@
 GoreeCloud Health
 ├── apps/web      responsive web client; no backend connection
 ├── apps/android  native Android Compose client; no health permissions
-└── contracts     source-level normalization contracts; synthetic validation only
+├── contracts     source-level health normalization contracts; synthetic validation only
+└── privacy       fail-closed Privacy Shield application declaration; no data authority
 ```
 
-The foundation intentionally avoids introducing a backend before GoreeCloud Identity, Privacy Shield, Wardveil Security, Everkeep, health-record provenance, and lifecycle requirements are defined.
+The foundation intentionally avoids introducing a backend before GoreeCloud Identity, Privacy Shield operation-level authorization/runtime acceptance, Wardveil Security, Everkeep, health-record provenance, and lifecycle requirements are defined and accepted.
+
+The current Privacy Shield application manifest is deliberately source-only and empty of purposes/resources. It establishes no health-data processing path and does not make Privacy Shield a runtime authority for Health Connect, local storage, synchronization, sharing, export, retention, deletion, or derived use.
 
 ## Planned trust boundaries
 
@@ -32,7 +35,7 @@ Health API / durable health store
  security      continuity
 ```
 
-Mesh may coordinate minimized state/evidence but does not become health-data authority. Manager may consume bounded operational status but does not become health-record authority.
+Operating-system permission authority remains with Android/Health Connect. GoreeCloud Health remains authoritative for its own application data handling. Privacy Shield supplies the shared privacy contract and acceptance boundary without inventing runtime behavior. Mesh may coordinate minimized state/evidence but does not become health-data authority. Manager may consume bounded operational status but does not become health-record authority.
 
 ## Record contract v1
 
@@ -47,4 +50,4 @@ The common envelope deliberately does not make arbitrary domain payloads support
 
 The current reconciliation baseline preserves source-native identity where available and forbids silent cross-source deduplication based only on matching time/value. Domain-specific aggregation and conflict resolution remain separate work.
 
-No contract file is a permission grant. Real ingestion, persistence, synchronization, or derived use remains blocked on applicable Privacy Shield and platform authorization plus the other required GoreeCloud integration/acceptance gates.
+No health contract or Privacy Shield source manifest is a permission grant. Real ingestion, persistence, synchronization, or derived use remains blocked on applicable Privacy Shield operation-level authorization and runtime acceptance plus the other required GoreeCloud integration/acceptance gates.

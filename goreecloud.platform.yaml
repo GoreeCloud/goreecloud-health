@@ -23,9 +23,11 @@ platform_systems:
     result: applicable-blocked
     version: null
     evidence:
+    - privacy/privacy-shield.application-manifest.json
+    - scripts/validate-privacy-boundary.mjs
     - docs/PRIVACY.md
     - SECURITY.md
-    notes: Required before real health-data processing or synchronization. The foundation intentionally processes no real health records.
+    notes: Source-level application manifest is fail-closed with no declared purposes or resources. Runtime authorization and acceptance remain required before real health-data processing or synchronization; the foundation intentionally processes no real health records.
   wardveil_security:
     result: applicable-blocked
     version: null
@@ -106,8 +108,10 @@ conformance:
   - README.md
   - FEATURES.md
   - docs/GLAZE-UI-ADOPTION.md
+  - docs/PRIVACY.md
+  - privacy/privacy-shield.application-manifest.json
   blockers:
-  - Real health-data ingestion and privacy authorization are not implemented.
+  - Real health-data ingestion and operation-level Privacy Shield authorization/runtime acceptance are not implemented.
   - Current GLAZE UI V1.3 consumer acceptance is not established.
   - Wardveil Security, Privacy Shield, Everkeep, Identity, Mesh, and Manager runtime integrations are incomplete.
   - Android reproducible build/physical-device acceptance is incomplete.

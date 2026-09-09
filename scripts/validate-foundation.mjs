@@ -23,8 +23,11 @@ const required = [
   'contracts/examples/heart-rate.synthetic.json',
   'contracts/examples/body-weight.synthetic.json',
   'contracts/examples/hydration-water.synthetic.json',
+  'privacy/privacy-shield.application-manifest.json',
   'docs/HEALTH-RECORD-CONTRACT.md',
-  'scripts/validate-health-record-contract.mjs'
+  'docs/PRIVACY.md',
+  'scripts/validate-health-record-contract.mjs',
+  'scripts/validate-privacy-boundary.mjs'
 ];
 
 for (const path of required) await access(path);
@@ -34,24 +37,30 @@ const features = await readFile('FEATURES.md', 'utf8');
 const web = await readFile('apps/web/index.html', 'utf8');
 const platform = await readFile('goreecloud.platform.yaml', 'utf8');
 const recordContract = await readFile('docs/HEALTH-RECORD-CONTRACT.md', 'utf8');
+const privacy = await readFile('docs/PRIVACY.md', 'utf8');
 
 const checks = [
   [readme.includes('does **not** currently collect real health data'), 'README must preserve the no-real-health-data boundary'],
+  [readme.includes('empty `purposes` and `resources`'), 'README must describe the fail-closed Privacy Shield source manifest'],
   [features.includes('Not implemented yet'), 'FEATURES must distinguish current and planned functionality'],
   [features.includes('Synthetic-only fixtures for all seven currently supported source-contract types'), 'FEATURES must identify all current fixtures as synthetic-only'],
-  [features.includes('They do **not** authorize or implement real health-data ingestion'), 'FEATURES must preserve the source-contract/runtime boundary'],
+  [features.includes('do **not** authorize or implement real health-data ingestion'), 'FEATURES must preserve the source-contract/runtime boundary'],
+  [features.includes('Privacy Shield Application Privacy Manifest v1'), 'FEATURES must record the current Privacy Shield source declaration'],
   [web.includes('Data sources: not connected'), 'Web shell must expose truthful connection state'],
   [web.includes('<dialog'), 'Web shell must include connection-state dialog'],
   [platform.includes("schema_version: '0.2'"), 'Platform Contract schema must be declared'],
   [platform.includes('version: 1.3.0'), 'Current Stable GLAZE UI target must be recorded'],
   [platform.includes('status: nonconformant'), 'Foundation must not claim platform conformance'],
+  [platform.includes('privacy_shield:\n    result: applicable-blocked\n    version: null'), 'Privacy Shield must remain blocked until runtime acceptance exists'],
   [recordContract.includes('does not enable Health Connect'), 'Record contract must preserve the no-runtime-ingestion boundary'],
   [recordContract.includes('not data-processing authorization'), 'Record contract must not manufacture privacy authorization'],
   [recordContract.includes('exercise.session'), 'Record contract must document the exercise-session boundary'],
   [recordContract.includes('sleep.session'), 'Record contract must document the sleep-session boundary'],
   [recordContract.includes('heart.rate'), 'Record contract must document the heart-rate boundary'],
   [recordContract.includes('body.weight'), 'Record contract must document the body-weight boundary'],
-  [recordContract.includes('hydration.water'), 'Record contract must document the hydration boundary']
+  [recordContract.includes('hydration.water'), 'Record contract must document the hydration boundary'],
+  [privacy.includes('does **not** authorize real health-data processing'), 'Privacy documentation must preserve the no-processing-authority boundary'],
+  [privacy.includes('No Privacy Shield runtime acceptance or health-data processing authority is claimed'), 'Privacy documentation must not overstate acceptance']
 ];
 
 for (const [ok, message] of checks) {

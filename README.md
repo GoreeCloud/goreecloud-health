@@ -6,7 +6,7 @@ GoreeCloud Health is the GoreeCloud personal health and wellness application. Th
 
 **Lifecycle:** Development — Foundation
 
-The current foundation introduces a responsive web application shell and an Android Jetpack Compose application shell. Both deliberately show empty/unconnected health state. The repository also contains a Development-only canonical health-record/source/provenance contract validated with synthetic data. This repository does **not** currently collect real health data, request Android Health Connect permissions, persist or synchronize health data, provide medical diagnosis, or claim accepted Privacy Shield, Wardveil Security, Everkeep, GoreeCloud Identity, Mesh, Manager, or Glaze UI consumer conformance.
+The current foundation introduces a responsive web application shell and an Android Jetpack Compose application shell. Both deliberately show empty/unconnected health state. The repository also contains Development-only health-record/source/provenance contracts validated with synthetic data plus a fail-closed Privacy Shield application manifest with no declared purposes or resources. This repository does **not** currently collect real health data, request Android Health Connect permissions, persist or synchronize health data, provide medical diagnosis, or claim accepted Privacy Shield, Wardveil Security, Everkeep, GoreeCloud Identity, Mesh, Manager, or Glaze UI consumer conformance.
 
 ## Initial platforms
 
@@ -21,12 +21,14 @@ The current foundation introduces a responsive web application shell and an Andr
 - Android Compose Today screen with explicit unconnected-data state.
 - Repository-level product, security, roadmap, branding, and platform-contract documentation.
 - Versioned source-level `goreecloud.health.record.v1` envelope and source contract plus seven current type contracts: `activity.steps`, `activity.distance`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`; all current fixtures are synthetic and fail-closed validation is repository-owned.
+- Privacy Shield Application Privacy Manifest v1 source declaration with empty `purposes` and `resources`; this creates no health-data processing authority.
 
 ## Repository layout
 
 - `apps/web/` — dependency-free responsive web foundation.
 - `apps/android/` — native Android Jetpack Compose foundation.
 - `contracts/` — Development health-record/source/type contracts and synthetic fixtures; no real user data.
+- `privacy/` — fail-closed Privacy Shield source declarations; no runtime health-data authorization.
 - `docs/` — architecture, privacy, design-system adoption, and health-record contract records.
 - `scripts/` — repository validation.
 
@@ -38,13 +40,14 @@ python3 -m http.server 4173 -d apps/web
 
 Then open `http://localhost:4173`.
 
-## Validate the record contract
+## Validate source boundaries
 
 ```bash
 node scripts/validate-health-record-contract.mjs
+node scripts/validate-privacy-boundary.mjs
 ```
 
-This uses only repository-owned synthetic fixture data. Passing it does not establish Health Connect, privacy/security, recovery, runtime-provider, production, or Stable acceptance.
+These validations use repository-owned declarations and synthetic fixture data only. Passing them does not establish Health Connect, Privacy Shield runtime acceptance, security, recovery, runtime-provider, production, or Stable acceptance.
 
 ## Android development
 
@@ -55,7 +58,7 @@ The Android source targets Android 16 / API 36 and uses Kotlin with Jetpack Comp
 | System | Current repository status |
 | --- | --- |
 | Glaze UI 1.3.0 | Adoption required; no conformance claim yet |
-| Privacy Shield | Planned; no health-data processing authority implemented |
+| Privacy Shield | Fail-closed source manifest established; runtime authorization remains blocked and no health-data processing authority is implemented |
 | Wardveil Security | Planned; no protection claim |
 | Everkeep | Planned; no recovery-readiness claim |
 | GoreeCloud Identity | Planned |
@@ -79,4 +82,4 @@ The Android source targets Android 16 / API 36 and uses Kotlin with Jetpack Comp
 
 ## Release boundary
 
-This foundation is not production-ready or Stable. Real health-data ingestion, storage, synchronization, permissions, account integration, privacy authorization, recovery, security, accessibility acceptance, and current Stable Glaze UI consumer acceptance require separate implementation and evidence before release claims are permitted.
+This foundation is not production-ready or Stable. Real health-data ingestion, storage, synchronization, permissions, account integration, Privacy Shield operation-level authorization and runtime acceptance, recovery, security, accessibility acceptance, and current Stable Glaze UI consumer acceptance require separate implementation and evidence before release claims are permitted.
