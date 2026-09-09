@@ -12,6 +12,7 @@ This document records **current repository functionality**, not the desired end 
 - Native Android Jetpack Compose application shell.
 - Android Today screen with explicit statement that Health Connect permissions are not requested by this foundation.
 - Repository validation script for mandatory foundation records and key truth-boundary text.
+- Privacy Shield Application Privacy Manifest v1 source declaration with empty `purposes` and `resources`, plus fail-closed validation that forbids source-level expansion without an explicit governed change.
 
 ## Implemented Development source contracts
 
@@ -24,7 +25,7 @@ This document records **current repository functionality**, not the desired end 
 - Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, and bounded measurement values.
 - Conservative reconciliation baseline that does not infer duplicates across different sources merely from matching values and times.
 
-These contracts are source-level foundations only. They do **not** authorize or implement real health-data ingestion, persistence, synchronization, aggregation, diagnosis, or medical interpretation.
+The health-record contracts and Privacy Shield source manifest are foundation boundaries only. They do **not** authorize or implement real health-data ingestion, persistence, synchronization, aggregation, diagnosis, medical interpretation, Privacy Shield runtime authorization, or production acceptance.
 
 ## Not implemented yet
 
@@ -33,13 +34,14 @@ These contracts are source-level foundations only. They do **not** authorize or 
 - Exercise classification/detail payloads beyond the bounded `exercise.session` interval contract.
 - Type-specific normalized contracts for active time/energy, sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
 - Approved cross-source aggregation/conflict-resolution rules beyond the conservative no-silent-deduplication baseline.
+- Governed non-empty Privacy Shield health-data purposes/resources and operation-level authorization.
+- Privacy Shield adapter capabilities or runtime acceptance.
 - Manual health entry.
 - Health goals and trend calculations.
 - Real charts from user health data.
 - GoreeCloud Identity sign-in.
 - Cloud health API or synchronization.
 - Multi-device merge/reconciliation.
-- Privacy Shield runtime authorization.
 - Wardveil runtime security integration.
 - Everkeep backup/restore/recovery acceptance.
 - GoreeCloud Mesh or Manager runtime integration.
