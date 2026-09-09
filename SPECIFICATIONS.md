@@ -6,7 +6,7 @@ GoreeCloud Health is a personal health and wellness application for the GoreeClo
 
 ## Lifecycle
 
-**Development — Foundation / trusted-record source work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. Bounded canonical health-record/source/provenance and core measurement/session contracts are implemented at source level and validated only with synthetic data.
+**Development — Foundation / trusted-record and privacy-source-boundary work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. Bounded canonical health-record/source/provenance and core measurement/session contracts are implemented at source level and validated only with synthetic data. A fail-closed Privacy Shield application manifest is also implemented at source level with no declared purposes or resources.
 
 ## Architectural baseline
 
@@ -15,6 +15,7 @@ The repository is a monorepo with platform-specific applications:
 - `apps/web` — responsive web client.
 - `apps/android` — native Kotlin/Jetpack Compose client.
 - `contracts` — repository-controlled health normalization contracts and synthetic fixtures; these do not create data-processing authority.
+- `privacy` — repository-controlled Privacy Shield source declarations; current manifest grants no health-data processing authority.
 - A shared backend/API is **not implemented** in the foundation. It will be introduced only when identity, privacy, security, data-lifecycle, and recovery requirements are defined and accepted.
 
 The preferred long-term direction is local-first processing where practical, with server synchronization limited to declared, authorized purposes.
@@ -39,6 +40,14 @@ All current fixtures are repository-owned synthetic records. No Health Connect o
 
 Initial reconciliation is deliberately conservative: trustworthy `(source_id, source_record_id)` identifies an exact source-native record when available; records from different sources are not silently deduplicated because time/value match; and cross-source aggregation/conflict resolution requires separately governed domain-specific rules.
 
+## Privacy Shield source boundary
+
+The repository contains `privacy/privacy-shield.application-manifest.json`, a source declaration shaped to Privacy Shield Application Privacy Manifest v1 (`https://goreecloud.dev/schemas/privacy-shield/application-manifest/v1`). It declares the exact application identity `goreecloud-health` and display name `GoreeCloud Health`.
+
+The current manifest has empty `purposes` and empty `resources`. This is intentional and fail-closed: no source connection, health record, Health Connect permission, local processing path, persistence path, synchronization path, sharing path, derived-use path, retention rule, deletion rule, export path, external processor, or destination is authorized by the manifest.
+
+No Privacy Shield adapter capability is declared by GoreeCloud Health at this stage. Capability claims require actual Health runtime behavior plus runtime-specific acceptance evidence. Any future non-empty manifest purpose/resource declaration is a separately governed application-data-processing change and must remain tied to the implemented operation, least-privilege platform permissions, lifecycle rules, validation, and applicable runtime acceptance.
+
 ## Planned health domains
 
 The product roadmap covers activity/exercise, sleep, heart/vitals, body measurements, nutrition/hydration, goals/trends, mindfulness, and supported user-authored wellbeing records. A domain is not considered runtime-supported merely because a source schema exists.
@@ -52,7 +61,7 @@ The product roadmap covers activity/exercise, sleep, heart/vitals, body measurem
 5. Canonical contract units are normalization targets, not permission to discard original source-unit provenance or precision.
 6. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
 7. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
-8. Schema validity is not authorization to collect, retain, disclose, synchronize, aggregate, or interpret health information.
+8. Schema or manifest validity is not authorization to collect, retain, disclose, synchronize, aggregate, interpret, or otherwise process health information beyond the declared and accepted operation.
 
 ## Medical-safety boundary
 
@@ -68,8 +77,8 @@ GoreeCloud Health is initially a wellness and personal health-information produc
 
 ## GoreeCloud platform systems
 
-All seven integral systems are applicable to the long-term product. Current status remains deliberately conservative: Manager planned; Privacy Shield blocked and required before real health-data processing; Wardveil Security blocked with no protection claim; Everkeep blocked with no recovery-readiness claim; Glaze UI 1.3.0 adoption required and unaccepted; Mesh planned only for minimized coordination/evidence; Identity planned for account/session authority.
+All seven integral systems are applicable to the long-term product. Current status remains deliberately conservative: Manager planned; Privacy Shield has a fail-closed source manifest but remains blocked for operation-level health-data processing and runtime acceptance; Wardveil Security blocked with no protection claim; Everkeep blocked with no recovery-readiness claim; Glaze UI 1.3.0 adoption required and unaccepted; Mesh planned only for minimized coordination/evidence; Identity planned for account/session authority.
 
 ## Acceptance boundary
 
-A source contract is not a runtime feature. Current implementation truth is recorded in `FEATURES.md`; planned work is recorded in `FEATURE-ROADMAP.md`. These contracts are not runtime provider, privacy, security, persistence, synchronization, recovery, medical, production, or Stable acceptance.
+A source contract or source manifest is not a runtime feature or runtime acceptance. Current implementation truth is recorded in `FEATURES.md`; planned work is recorded in `FEATURE-ROADMAP.md`. These source artifacts are not runtime provider, privacy authorization, security, persistence, synchronization, recovery, medical, production, or Stable acceptance.
