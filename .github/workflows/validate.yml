@@ -32,3 +32,5 @@ jobs:
         run: node scripts/validate-foundation.mjs
       - name: Validate health record contract
         run: node scripts/validate-health-record-contract.mjs
+      - name: Validate Privacy Shield source boundary
+        run: node scripts/validate-privacy-boundary.mjs
