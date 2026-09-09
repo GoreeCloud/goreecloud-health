@@ -6,7 +6,7 @@ GoreeCloud Health is the GoreeCloud personal health and wellness application. Th
 
 **Lifecycle:** Development — Foundation
 
-The current foundation introduces a responsive web application shell and an Android Jetpack Compose application shell. Both deliberately show empty/unconnected health state. The repository also contains Development-only health-record/source/provenance contracts validated with synthetic data plus a fail-closed Privacy Shield application manifest with no declared purposes or resources. This repository does **not** currently collect real health data, request Android Health Connect permissions, persist or synchronize health data, provide medical diagnosis, or claim accepted Privacy Shield, Wardveil Security, Everkeep, GoreeCloud Identity, Mesh, Manager, or Glaze UI consumer conformance.
+The current foundation introduces a responsive web application shell and an Android Jetpack Compose application shell. Both deliberately show empty/unconnected health state. The repository also contains Development-only health-record/source/provenance contracts validated with synthetic data, a fail-closed machine-readable reconciliation policy, and a fail-closed Privacy Shield application manifest with no declared purposes or resources. This repository does **not** currently collect real health data, request Android Health Connect permissions, persist or synchronize health data, provide medical diagnosis, or claim accepted Privacy Shield, Wardveil Security, Everkeep, GoreeCloud Identity, Mesh, Manager, or Glaze UI consumer conformance.
 
 ## Initial platforms
 
@@ -21,13 +21,14 @@ The current foundation introduces a responsive web application shell and an Andr
 - Android Compose Today screen with explicit unconnected-data state.
 - Repository-level product, security, roadmap, branding, and platform-contract documentation.
 - Versioned source-level `goreecloud.health.record.v1` envelope and source contract plus seven current type contracts: `activity.steps`, `activity.distance`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`; all current fixtures are synthetic and fail-closed validation is repository-owned.
+- `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json`, which preserves exact same-source identity while keeping heuristic and cross-source aggregation/conflict behavior unauthorized until separately governed.
 - Privacy Shield Application Privacy Manifest v1 source declaration with empty `purposes` and `resources`; this creates no health-data processing authority.
 
 ## Repository layout
 
 - `apps/web/` — dependency-free responsive web foundation.
 - `apps/android/` — native Android Jetpack Compose foundation.
-- `contracts/` — Development health-record/source/type contracts and synthetic fixtures; no real user data.
+- `contracts/` — Development health-record/source/type contracts, reconciliation policy, and synthetic fixtures; no real user data.
 - `privacy/` — fail-closed Privacy Shield source declarations; no runtime health-data authorization.
 - `docs/` — architecture, privacy, design-system adoption, and health-record contract records.
 - `scripts/` — repository validation.
@@ -82,4 +83,4 @@ The Android source targets Android 16 / API 36 and uses Kotlin with Jetpack Comp
 
 ## Release boundary
 
-This foundation is not production-ready or Stable. Real health-data ingestion, storage, synchronization, permissions, account integration, Privacy Shield operation-level authorization and runtime acceptance, recovery, security, accessibility acceptance, and current Stable Glaze UI consumer acceptance require separate implementation and evidence before release claims are permitted.
+This foundation is not production-ready or Stable. Real health-data ingestion, storage, synchronization, permissions, account integration, positive cross-source aggregation/conflict semantics, Privacy Shield operation-level authorization and runtime acceptance, recovery, security, accessibility acceptance, and current Stable Glaze UI consumer acceptance require separate implementation and evidence before release claims are permitted.
