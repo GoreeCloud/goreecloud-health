@@ -4,6 +4,7 @@
   "applies_to_record_types": [
     "activity.steps",
     "activity.distance",
+    "activity.active-energy",
     "exercise.session",
     "sleep.session",
     "heart.rate",
