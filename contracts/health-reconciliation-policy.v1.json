@@ -1,0 +1,32 @@
+{
+  "schema_version": "goreecloud.health.reconciliation-policy.v1",
+  "status": "development-source-policy",
+  "applies_to_record_types": [
+    "activity.steps",
+    "activity.distance",
+    "exercise.session",
+    "sleep.session",
+    "heart.rate",
+    "body.weight",
+    "hydration.water"
+  ],
+  "exact_source_identity": {
+    "key": [
+      "source.source_id",
+      "source.source_record_id"
+    ],
+    "requires_source_record_id": true,
+    "result": "same-source-reobservation"
+  },
+  "missing_source_record_id": {
+    "heuristic_deduplication": "not-authorized"
+  },
+  "cross_source": {
+    "value_time_deduplication": "not-authorized",
+    "aggregation": "not-authorized",
+    "conflict_resolution": "not-authorized"
+  },
+  "lifecycle_replacement": {
+    "mode": "explicit-supersession-only"
+  }
+}

@@ -6,7 +6,7 @@ GoreeCloud Health is a personal health and wellness application for the GoreeClo
 
 ## Lifecycle
 
-**Development — Foundation / trusted-record and privacy-source-boundary work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. Bounded canonical health-record/source/provenance and core measurement/session contracts are implemented at source level and validated only with synthetic data. A fail-closed Privacy Shield application manifest is also implemented at source level with no declared purposes or resources.
+**Development — Foundation / trusted-record and privacy-source-boundary work.** Current runtime implementation is still limited to web and Android presentation shells with no real health-data ingestion or cloud persistence. Bounded canonical health-record/source/provenance and core measurement/session contracts are implemented at source level and validated only with synthetic data. A fail-closed reconciliation policy and Privacy Shield application manifest are also implemented at source level; neither grants runtime health-data processing authority.
 
 ## Architectural baseline
 
@@ -14,7 +14,7 @@ The repository is a monorepo with platform-specific applications:
 
 - `apps/web` — responsive web client.
 - `apps/android` — native Kotlin/Jetpack Compose client.
-- `contracts` — repository-controlled health normalization contracts and synthetic fixtures; these do not create data-processing authority.
+- `contracts` — repository-controlled health normalization contracts, reconciliation policy, and synthetic fixtures; these do not create data-processing authority.
 - `privacy` — repository-controlled Privacy Shield source declarations; current manifest grants no health-data processing authority.
 - A shared backend/API is **not implemented** in the foundation. It will be introduced only when identity, privacy, security, data-lifecycle, and recovery requirements are defined and accepted.
 
@@ -38,7 +38,13 @@ Current type-specific source contracts are:
 
 All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. Exercise classification/details beyond the session boundary plus active-time/energy, sleep-stage, additional vital/body, broader nutrition, and wellbeing contracts remain planned rather than inferred from these types.
 
-Initial reconciliation is deliberately conservative: trustworthy `(source_id, source_record_id)` identifies an exact source-native record when available; records from different sources are not silently deduplicated because time/value match; and cross-source aggregation/conflict resolution requires separately governed domain-specific rules.
+## Reconciliation policy
+
+The Development source contract includes `contracts/health-reconciliation-policy.v1.json` with schema version `goreecloud.health.reconciliation-policy.v1`. It applies exactly to the seven current record types and turns the current conservative reconciliation baseline into an explicit machine-readable policy.
+
+Trustworthy `(source_id, source_record_id)` identifies exact same-source re-observation when source-native identity exists. Without `source_record_id`, heuristic value/time deduplication is unauthorized. Across different sources, matching value/time does not authorize deduplication, aggregation, or conflict resolution. Replacement/correction is explicit-supersession-only.
+
+This is a refusal boundary, not a complete multi-source aggregation system. Any future rule that combines, prefers, suppresses, ranks, merges, or derives values across sources requires separately governed type/domain semantics and validation before use.
 
 ## Privacy Shield source boundary
 
@@ -56,12 +62,13 @@ The product roadmap covers activity/exercise, sleep, heart/vitals, body measurem
 
 1. Every measurement must preserve its source/provenance.
 2. Missing data remains missing; the application must not synthesize health readings and present them as measured.
-3. Duplicate records from multiple sources require deterministic reconciliation rather than silent double counting.
-4. Time zone, unit, precision, and source semantics must be retained or transformed explicitly.
-5. Canonical contract units are normalization targets, not permission to discard original source-unit provenance or precision.
-6. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
-7. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
-8. Schema or manifest validity is not authorization to collect, retain, disclose, synchronize, aggregate, interpret, or otherwise process health information beyond the declared and accepted operation.
+3. Duplicate records from multiple sources require deterministic governed reconciliation rather than silent double counting.
+4. The current reconciliation policy does not authorize cross-source aggregation or conflict resolution.
+5. Time zone, unit, precision, and source semantics must be retained or transformed explicitly.
+6. Canonical contract units are normalization targets, not permission to discard original source-unit provenance or precision.
+7. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
+8. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
+9. Schema, reconciliation-policy, or manifest validity is not authorization to collect, retain, disclose, synchronize, aggregate, interpret, or otherwise process health information beyond the declared and accepted operation.
 
 ## Medical-safety boundary
 
@@ -81,4 +88,4 @@ All seven integral systems are applicable to the long-term product. Current stat
 
 ## Acceptance boundary
 
-A source contract or source manifest is not a runtime feature or runtime acceptance. Current implementation truth is recorded in `FEATURES.md`; planned work is recorded in `FEATURE-ROADMAP.md`. These source artifacts are not runtime provider, privacy authorization, security, persistence, synchronization, recovery, medical, production, or Stable acceptance.
+A source contract, reconciliation policy, or source manifest is not a runtime feature or runtime acceptance. Current implementation truth is recorded in `FEATURES.md`; planned work is recorded in `FEATURE-ROADMAP.md`. These source artifacts are not runtime provider, privacy authorization, security, persistence, synchronization, recovery, medical, production, or Stable acceptance.

@@ -23,9 +23,11 @@ This document records **current repository functionality**, not the desired end 
 - Canonical source-level units where applicable: distance in meters (`m`), heart rate in beats per minute (`bpm`), body weight in kilograms (`kg`), and water volume in milliliters (`mL`).
 - Synthetic-only fixtures for all seven currently supported source-contract types; none are user health data.
 - Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, and bounded measurement values.
-- Conservative reconciliation baseline that does not infer duplicates across different sources merely from matching values and times.
+- Machine-readable `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json` covering exactly the seven current record types.
+- Reconciliation policy recognizes trustworthy same-source `(source_id, source_record_id)` re-observation, requires explicit lifecycle supersession for replacement, and keeps heuristic deduplication without source-native identity, cross-source value/time deduplication, cross-source aggregation, and cross-source conflict resolution explicitly unauthorized.
+- Fail-closed reconciliation-policy validation rejects cross-source aggregation enablement and ungoverned record-type expansion.
 
-The health-record contracts and Privacy Shield source manifest are foundation boundaries only. They do **not** authorize or implement real health-data ingestion, persistence, synchronization, aggregation, diagnosis, medical interpretation, Privacy Shield runtime authorization, or production acceptance.
+The health-record contracts, reconciliation policy, and Privacy Shield source manifest are foundation boundaries only. They do **not** authorize or implement real health-data ingestion, persistence, synchronization, aggregation, diagnosis, medical interpretation, Privacy Shield runtime authorization, or production acceptance.
 
 ## Not implemented yet
 
@@ -33,7 +35,7 @@ The health-record contracts and Privacy Shield source manifest are foundation bo
 - Step/distance/exercise/sleep/heart/body/hydration ingestion from real user sources.
 - Exercise classification/detail payloads beyond the bounded `exercise.session` interval contract.
 - Type-specific normalized contracts for active time/energy, sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
-- Approved cross-source aggregation/conflict-resolution rules beyond the conservative no-silent-deduplication baseline.
+- Positive domain-specific cross-source aggregation/conflict-resolution rules beyond the fail-closed reconciliation policy.
 - Governed non-empty Privacy Shield health-data purposes/resources and operation-level authorization.
 - Privacy Shield adapter capabilities or runtime acceptance.
 - Manual health entry.
