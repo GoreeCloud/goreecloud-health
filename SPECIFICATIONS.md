@@ -30,17 +30,18 @@ Current type-specific source contracts are:
 
 - `activity.steps` — bounded non-negative step count.
 - `activity.distance` — bounded distance using canonical source-level unit `m`.
+- `activity.active-energy` — active energy excluding basal energy over a required positive-duration interval, with bounded value `0..1000000` and canonical source-level unit `kcal`.
 - `exercise.session` — positive-duration exercise interval with a deliberately empty payload until governed exercise classification/detail semantics are defined.
 - `sleep.session` — positive-duration sleep interval with a deliberately empty payload until governed stage semantics are defined.
 - `heart.rate` — bounded integer measurement using canonical source-level unit `bpm`.
 - `body.weight` — positive bounded measurement using canonical source-level unit `kg`.
 - `hydration.water` — positive bounded water volume using canonical source-level unit `mL`.
 
-All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. Exercise classification/details beyond the session boundary plus active-time/energy, sleep-stage, additional vital/body, broader nutrition, and wellbeing contracts remain planned rather than inferred from these types.
+All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. The active-energy contract is a normalization boundary only; it does not calculate energy, authorize ingestion, or establish a source mapping. Active-time, exercise classification/details beyond the session boundary, sleep-stage, additional vital/body, broader nutrition, and wellbeing contracts remain planned rather than inferred from these types.
 
 ## Reconciliation policy
 
-The Development source contract includes `contracts/health-reconciliation-policy.v1.json` with schema version `goreecloud.health.reconciliation-policy.v1`. It applies exactly to the seven current record types and turns the current conservative reconciliation baseline into an explicit machine-readable policy.
+The Development source contract includes `contracts/health-reconciliation-policy.v1.json` with schema version `goreecloud.health.reconciliation-policy.v1`. It applies exactly to the eight current record types and turns the current conservative reconciliation baseline into an explicit machine-readable policy.
 
 Trustworthy `(source_id, source_record_id)` identifies exact same-source re-observation when source-native identity exists. Without `source_record_id`, heuristic value/time deduplication is unauthorized. Across different sources, matching value/time does not authorize deduplication, aggregation, or conflict resolution. Replacement/correction is explicit-supersession-only.
 
@@ -63,12 +64,12 @@ The product roadmap covers activity/exercise, sleep, heart/vitals, body measurem
 1. Every measurement must preserve its source/provenance.
 2. Missing data remains missing; the application must not synthesize health readings and present them as measured.
 3. Duplicate records from multiple sources require deterministic governed reconciliation rather than silent double counting.
-4. The current reconciliation policy does not authorize cross-source aggregation or conflict resolution.
+4. The current reconciliation policy does not authorize cross-source aggregation or conflict resolution, including for active-energy records.
 5. Time zone, unit, precision, and source semantics must be retained or transformed explicitly.
 6. Canonical contract units are normalization targets, not permission to discard original source-unit provenance or precision.
 7. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
 8. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
-9. Schema, reconciliation-policy, or manifest validity is not authorization to collect, retain, disclose, synchronize, aggregate, interpret, or otherwise process health information beyond the declared and accepted operation.
+9. Schema, reconciliation-policy, or manifest validity is not authorization to collect, retain, disclose, synchronize, aggregate, interpret, calculate, or otherwise process health information beyond the declared and accepted operation.
 
 ## Medical-safety boundary
 
