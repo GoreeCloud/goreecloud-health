@@ -1,0 +1,15 @@
+{
+  "schema_version": "goreecloud.health.record.v1",
+  "record_id": "synthetic.active-energy.20260909.001",
+  "record_type": "activity.active-energy",
+  "interval": {
+    "start_time": "2026-09-09T09:00:00-05:00",
+    "end_time": "2026-09-09T10:00:00-05:00",
+    "time_zone": "America/Chicago",
+    "utc_offset_minutes": -300
+  },
+  "source": {"source_id": "synthetic.fixture", "source_kind": "synthetic", "source_record_id": "active-energy-001"},
+  "provenance": {"ingest_method": "synthetic-fixture", "observed_at": "2026-09-09T15:00:00Z", "transformed": false},
+  "lifecycle": {"status": "active"},
+  "payload": {"value": 120.5, "unit": "kcal"}
+}

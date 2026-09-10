@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/activity-active-energy.v1.json",
+  "title": "GoreeCloud Health Activity Active Energy v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "activity.active-energy"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {"type": "number", "minimum": 0, "maximum": 1000000},
+            "unit": {"const": "kcal"}
+          }
+        }
+      }
+    }
+  ]
+}

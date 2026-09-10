@@ -20,7 +20,8 @@ The current foundation introduces a responsive web application shell and an Andr
 - Web navigation for Today, Trends, Data, and Settings foundation surfaces.
 - Android Compose Today screen with explicit unconnected-data state.
 - Repository-level product, security, roadmap, branding, and platform-contract documentation.
-- Versioned source-level `goreecloud.health.record.v1` envelope and source contract plus seven current type contracts: `activity.steps`, `activity.distance`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`; all current fixtures are synthetic and fail-closed validation is repository-owned.
+- Versioned source-level `goreecloud.health.record.v1` envelope and source contract plus eight current type contracts: `activity.steps`, `activity.distance`, `activity.active-energy`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`; all current fixtures are synthetic and fail-closed validation is repository-owned.
+- `activity.active-energy` represents active energy over a positive-duration interval using canonical source-level unit `kcal`; it excludes basal energy by contract semantics and creates no permission to calculate, infer, aggregate, or ingest a user's energy data.
 - `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json`, which preserves exact same-source identity while keeping heuristic and cross-source aggregation/conflict behavior unauthorized until separately governed.
 - Privacy Shield Application Privacy Manifest v1 source declaration with empty `purposes` and `resources`; this creates no health-data processing authority.
 
