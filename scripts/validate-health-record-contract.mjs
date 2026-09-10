@@ -5,6 +5,7 @@ const paths = {
   envelope: 'contracts/health-record-envelope.schema.json',
   steps: 'contracts/activity-steps.schema.json',
   distance: 'contracts/activity-distance.schema.json',
+  activeEnergy: 'contracts/activity-active-energy.schema.json',
   exercise: 'contracts/exercise-session.schema.json',
   sleep: 'contracts/sleep-session.schema.json',
   heartRate: 'contracts/heart-rate.schema.json',
@@ -14,6 +15,7 @@ const paths = {
   fixtures: {
     steps: 'contracts/examples/activity-steps.synthetic.json',
     distance: 'contracts/examples/activity-distance.synthetic.json',
+    activeEnergy: 'contracts/examples/activity-active-energy.synthetic.json',
     exercise: 'contracts/examples/exercise-session.synthetic.json',
     sleep: 'contracts/examples/sleep-session.synthetic.json',
     heartRate: 'contracts/examples/heart-rate.synthetic.json',
@@ -23,8 +25,8 @@ const paths = {
 };
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
-const [sourceSchema, envelopeSchema, stepsSchema, distanceSchema, exerciseSchema, sleepSchema, heartRateSchema, bodyWeightSchema, waterSchema, reconciliationPolicy] = await Promise.all([
-  readJson(paths.source), readJson(paths.envelope), readJson(paths.steps), readJson(paths.distance), readJson(paths.exercise), readJson(paths.sleep), readJson(paths.heartRate), readJson(paths.bodyWeight), readJson(paths.water), readJson(paths.reconciliationPolicy)
+const [sourceSchema, envelopeSchema, stepsSchema, distanceSchema, activeEnergySchema, exerciseSchema, sleepSchema, heartRateSchema, bodyWeightSchema, waterSchema, reconciliationPolicy] = await Promise.all([
+  readJson(paths.source), readJson(paths.envelope), readJson(paths.steps), readJson(paths.distance), readJson(paths.activeEnergy), readJson(paths.exercise), readJson(paths.sleep), readJson(paths.heartRate), readJson(paths.bodyWeight), readJson(paths.water), readJson(paths.reconciliationPolicy)
 ]);
 const fixtures = Object.fromEntries(await Promise.all(Object.entries(paths.fixtures).map(async ([name, path]) => [name, await readJson(path)])));
 
@@ -88,6 +90,7 @@ function exactPayload(record, type, keys) {
 }
 function validateSteps(record) { exactPayload(record, 'activity.steps', ['count']); expect(Number.isInteger(record.payload.count) && record.payload.count >= 0 && record.payload.count <= 2147483647, 'step count must be bounded'); }
 function validateDistance(record) { exactPayload(record, 'activity.distance', ['value', 'unit']); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value >= 0 && record.payload.value <= 1000000000, 'distance value must be bounded'); expect(record.payload.unit === 'm', 'distance unit must be m'); }
+function validateActiveEnergy(record) { exactPayload(record, 'activity.active-energy', ['value', 'unit']); expect('end_time' in record.interval, 'active energy requires end_time'); expect(Date.parse(record.interval.end_time) > Date.parse(record.interval.start_time), 'active energy interval duration must be positive'); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value >= 0 && record.payload.value <= 1000000, 'active energy must be 0..1000000 kcal'); expect(record.payload.unit === 'kcal', 'active energy unit must be kcal'); }
 function validateExercise(record) { exactPayload(record, 'exercise.session', []); expect('end_time' in record.interval, 'exercise session requires end_time'); expect(Date.parse(record.interval.end_time) > Date.parse(record.interval.start_time), 'exercise session duration must be positive'); }
 function validateSleep(record) { exactPayload(record, 'sleep.session', []); expect('end_time' in record.interval, 'sleep session requires end_time'); expect(Date.parse(record.interval.end_time) > Date.parse(record.interval.start_time), 'sleep session duration must be positive'); }
 function validateHeartRate(record) { exactPayload(record, 'heart.rate', ['value', 'unit']); expect(Number.isInteger(record.payload.value) && record.payload.value >= 1 && record.payload.value <= 300, 'heart rate must be 1..300 bpm'); expect(record.payload.unit === 'bpm', 'heart rate unit must be bpm'); }
@@ -97,6 +100,7 @@ function validateWater(record) { exactPayload(record, 'hydration.water', ['value
 const currentRecordTypes = [
   'activity.steps',
   'activity.distance',
+  'activity.active-energy',
   'exercise.session',
   'sleep.session',
   'heart.rate',
@@ -109,7 +113,7 @@ function validateReconciliationPolicy(policy) {
   expect(policy.schema_version === 'goreecloud.health.reconciliation-policy.v1', 'reconciliation policy schema_version mismatch');
   expect(policy.status === 'development-source-policy', 'reconciliation policy must remain Development source policy');
   expect(Array.isArray(policy.applies_to_record_types), 'reconciliation policy record types must be an array');
-  expect(JSON.stringify(policy.applies_to_record_types) === JSON.stringify(currentRecordTypes), 'reconciliation policy must cover exactly the seven current record types');
+  expect(JSON.stringify(policy.applies_to_record_types) === JSON.stringify(currentRecordTypes), 'reconciliation policy must cover exactly the eight current record types');
 
   hasExactKeys(policy.exact_source_identity, ['key', 'requires_source_record_id', 'result'], 'exact_source_identity');
   expect(JSON.stringify(policy.exact_source_identity.key) === JSON.stringify(['source.source_id', 'source.source_record_id']), 'exact source identity key must remain source_id + source_record_id');
@@ -133,6 +137,7 @@ const schemaChecks = [
   [envelopeSchema, 'https://goreecloud.com/schemas/health/health-record-envelope.v1.json', null],
   [stepsSchema, 'https://goreecloud.com/schemas/health/activity-steps.v1.json', 'activity.steps'],
   [distanceSchema, 'https://goreecloud.com/schemas/health/activity-distance.v1.json', 'activity.distance'],
+  [activeEnergySchema, 'https://goreecloud.com/schemas/health/activity-active-energy.v1.json', 'activity.active-energy'],
   [exerciseSchema, 'https://goreecloud.com/schemas/health/exercise-session.v1.json', 'exercise.session'],
   [sleepSchema, 'https://goreecloud.com/schemas/health/sleep-session.v1.json', 'sleep.session'],
   [heartRateSchema, 'https://goreecloud.com/schemas/health/heart-rate.v1.json', 'heart.rate'],
@@ -149,6 +154,7 @@ expect(envelopeSchema.properties?.source?.$ref === './health-source.schema.json'
 
 validateSteps(fixtures.steps);
 validateDistance(fixtures.distance);
+validateActiveEnergy(fixtures.activeEnergy);
 validateExercise(fixtures.exercise);
 validateSleep(fixtures.sleep);
 validateHeartRate(fixtures.heartRate);
@@ -160,6 +166,9 @@ const negatives = [
   ['unknown record field', validateSteps, { ...structuredClone(fixtures.steps), unexpected: true }],
   ['negative steps', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.payload.count = -1; return x; })()],
   ['wrong distance unit', validateDistance, (() => { const x = structuredClone(fixtures.distance); x.payload.unit = 'km'; return x; })()],
+  ['wrong active-energy unit', validateActiveEnergy, (() => { const x = structuredClone(fixtures.activeEnergy); x.payload.unit = 'kJ'; return x; })()],
+  ['zero active-energy duration', validateActiveEnergy, (() => { const x = structuredClone(fixtures.activeEnergy); x.interval.end_time = x.interval.start_time; return x; })()],
+  ['active energy too high', validateActiveEnergy, (() => { const x = structuredClone(fixtures.activeEnergy); x.payload.value = 1000001; return x; })()],
   ['zero exercise duration', validateExercise, (() => { const x = structuredClone(fixtures.exercise); x.interval.end_time = x.interval.start_time; return x; })()],
   ['ungoverned exercise payload', validateExercise, (() => { const x = structuredClone(fixtures.exercise); x.payload.activity_type = 'running'; return x; })()],
   ['zero sleep duration', validateSleep, (() => { const x = structuredClone(fixtures.sleep); x.interval.end_time = x.interval.start_time; return x; })()],
@@ -184,4 +193,4 @@ for (const [name, candidate] of reconciliationNegatives) {
   expect(rejected, `reconciliation policy negative case must fail closed: ${name}`);
 }
 
-console.log('Validated GoreeCloud Health record contracts: 9 schemas/contracts, 1 reconciliation policy, 7 synthetic fixtures, 10 record negative cases, and 2 reconciliation-policy negative cases.');
+console.log('Validated GoreeCloud Health record contracts: 10 schemas/contracts, 1 reconciliation policy, 8 synthetic fixtures, 13 record negative cases, and 2 reconciliation-policy negative cases.');
