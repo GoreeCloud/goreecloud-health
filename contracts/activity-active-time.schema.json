@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/activity-active-time.v1.json",
+  "title": "GoreeCloud Health Activity Active Time v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "activity.active-time"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {"type": "number", "minimum": 0, "maximum": 2147483647},
+            "unit": {"const": "s"}
+          }
+        }
+      }
+    }
+  ]
+}
