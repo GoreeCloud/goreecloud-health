@@ -49,29 +49,31 @@ const recordTypePattern = /^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$/;
 const timeZonePattern = /^[A-Za-z0-9._+-]+(?:\/[A-Za-z0-9._+-]+)+$/;
 const offsetAwareDateTimePattern = /(?:Z|[+-]\d{2}:\d{2})$/;
 const validOffsetAwareDateTime = (value) => typeof value === 'string' && offsetAwareDateTimePattern.test(value) && Number.isFinite(Date.parse(value));
+const boundedString = (value, min, max) => typeof value === 'string' && value.length >= min && value.length <= max;
 
 function validateSource(source) {
   hasOnly(source, ['source_id', 'source_kind', 'source_record_id', 'source_display_name'], 'source');
   expect(typeof source.source_id === 'string' && idPattern.test(source.source_id), 'source_id must be canonical and bounded');
   expect(['device', 'application', 'manual', 'import', 'synthetic'].includes(source.source_kind), 'source_kind is unsupported');
   if ('source_record_id' in source) {
-    expect(typeof source.source_record_id === 'string' && source.source_record_id.length >= 1 && source.source_record_id.length <= 256, 'source_record_id must be bounded');
+    expect(boundedString(source.source_record_id, 1, 256), 'source_record_id must be bounded');
     expect(!/[\u0000-\u001F\u007F]/.test(source.source_record_id), 'source_record_id must not contain control characters');
   }
+  if ('source_display_name' in source) expect(boundedString(source.source_display_name, 1, 120), 'source_display_name must be 1..120 characters');
 }
 
 function validateRecord(record) {
   hasOnly(record, ['schema_version', 'record_id', 'record_type', 'interval', 'source', 'provenance', 'lifecycle', 'payload'], 'record');
   expect(record.schema_version === 'goreecloud.health.record.v1', 'schema_version mismatch');
   expect(typeof record.record_id === 'string' && idPattern.test(record.record_id), 'record_id must be canonical and bounded');
-  expect(typeof record.record_type === 'string' && recordTypePattern.test(record.record_type), 'record_type must be namespaced');
+  expect(typeof record.record_type === 'string' && record.record_type.length >= 3 && record.record_type.length <= 96 && recordTypePattern.test(record.record_type), 'record_type must be bounded and namespaced');
   hasOnly(record.interval, ['start_time', 'end_time', 'time_zone', 'utc_offset_minutes'], 'interval');
   expect(validOffsetAwareDateTime(record.interval.start_time), 'start_time must be an offset-aware date-time');
   if ('end_time' in record.interval) {
     expect(validOffsetAwareDateTime(record.interval.end_time), 'end_time must be an offset-aware date-time');
     expect(Date.parse(record.interval.end_time) >= Date.parse(record.interval.start_time), 'end_time must not precede start_time');
   }
-  expect(typeof record.interval.time_zone === 'string' && timeZonePattern.test(record.interval.time_zone), 'time_zone must be an IANA-style zone identifier');
+  expect(boundedString(record.interval.time_zone, 1, 64) && timeZonePattern.test(record.interval.time_zone), 'time_zone must be a bounded IANA-style zone identifier');
   expect(Number.isInteger(record.interval.utc_offset_minutes) && record.interval.utc_offset_minutes >= -840 && record.interval.utc_offset_minutes <= 840, 'utc_offset_minutes must be bounded');
   validateSource(record.source);
   hasOnly(record.provenance, ['ingest_method', 'observed_at', 'imported_at', 'transformed', 'transformation_notes'], 'provenance');
@@ -79,7 +81,8 @@ function validateRecord(record) {
   expect(validOffsetAwareDateTime(record.provenance.observed_at), 'observed_at must be an offset-aware date-time');
   if ('imported_at' in record.provenance) expect(validOffsetAwareDateTime(record.provenance.imported_at), 'imported_at must be an offset-aware date-time');
   expect(typeof record.provenance.transformed === 'boolean', 'transformed must be boolean');
-  if (record.provenance.transformed) expect(typeof record.provenance.transformation_notes === 'string' && record.provenance.transformation_notes.length >= 1, 'transformed records require transformation_notes');
+  if ('transformation_notes' in record.provenance) expect(boundedString(record.provenance.transformation_notes, 1, 500), 'transformation_notes must be 1..500 characters');
+  if (record.provenance.transformed) expect('transformation_notes' in record.provenance, 'transformed records require transformation_notes');
   hasOnly(record.lifecycle, ['status', 'supersedes_record_id'], 'lifecycle');
   expect(['active', 'superseded', 'deleted'].includes(record.lifecycle.status), 'lifecycle status is unsupported');
   if ('supersedes_record_id' in record.lifecycle) expect(typeof record.lifecycle.supersedes_record_id === 'string' && idPattern.test(record.lifecycle.supersedes_record_id), 'supersedes_record_id must be canonical');
@@ -188,7 +191,10 @@ const negatives = [
   ['noncanonical id', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.record_id = ' synthetic.steps.001 '; return x; })()],
   ['start_time without UTC offset', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.interval.start_time = '2026-09-11T18:00:00'; return x; })()],
   ['observed_at without UTC offset', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.provenance.observed_at = '2026-09-11T23:35:00'; return x; })()],
-  ['invalid imported_at', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.provenance.imported_at = 'not-a-date'; return x; })()]
+  ['invalid imported_at', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.provenance.imported_at = 'not-a-date'; return x; })()],
+  ['oversized source display name', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.source.source_display_name = 'x'.repeat(121); return x; })()],
+  ['oversized time zone', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.interval.time_zone = `Region/${'A'.repeat(60)}`; return x; })()],
+  ['oversized transformation notes', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.provenance.transformed = true; x.provenance.transformation_notes = 'x'.repeat(501); return x; })()]
 ];
 for (const [name, validator, candidate] of negatives) {
   let rejected = false;
@@ -206,4 +212,4 @@ for (const [name, candidate] of reconciliationNegatives) {
   expect(rejected, `reconciliation policy negative case must fail closed: ${name}`);
 }
 
-console.log('Validated GoreeCloud Health record contracts: 11 schemas/contracts, 1 reconciliation policy, 9 synthetic fixtures, 18 record negative cases, and 2 reconciliation-policy negative cases.');
+console.log('Validated GoreeCloud Health record contracts: 11 schemas/contracts, 1 reconciliation policy, 9 synthetic fixtures, 21 record negative cases, and 2 reconciliation-policy negative cases.');
