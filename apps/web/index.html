@@ -6,33 +6,34 @@
   <meta name="color-scheme" content="light dark">
   <meta name="description" content="GoreeCloud Health development foundation">
   <title>GoreeCloud Health</title>
+  <link rel="stylesheet" href="../../vendor/glaze-ui/css/glaze-v1.3.0.css">
   <link rel="stylesheet" href="app.css">
   <script src="app.js" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#main">Skip to health overview</a>
+<body class="glz1-workspace">
+  <a class="skip-link glz1-focusable" href="#main">Skip to health overview</a>
   <header class="app-header">
     <div class="brand-block">
       <span class="eyebrow">GoreeCloud</span>
       <strong class="brand-name">Health</strong>
     </div>
-    <button class="primary-action" type="button" data-open-connections>Connect a data source</button>
+    <button class="glz1-button primary-action" data-variant="primary" data-size="lg" type="button" data-open-connections>Connect a data source</button>
   </header>
 
-  <nav class="section-nav" aria-label="Health sections">
-    <button type="button" class="nav-item is-active" data-panel-target="today" aria-current="page">Today</button>
-    <button type="button" class="nav-item" data-panel-target="trends">Trends</button>
-    <button type="button" class="nav-item" data-panel-target="data">Data</button>
-    <button type="button" class="nav-item" data-panel-target="settings">Settings</button>
+  <nav class="section-nav glz1-capsule" aria-label="Health sections">
+    <button type="button" class="nav-item glz1-button" data-variant="quiet" data-panel-target="today" data-state="selected" aria-current="page">Today</button>
+    <button type="button" class="nav-item glz1-button" data-variant="quiet" data-panel-target="trends">Trends</button>
+    <button type="button" class="nav-item glz1-button" data-variant="quiet" data-panel-target="data">Data</button>
+    <button type="button" class="nav-item glz1-button" data-variant="quiet" data-panel-target="settings">Settings</button>
   </nav>
 
-  <main id="main" class="shell">
+  <main id="main" class="shell glz1-focusable" tabindex="-1">
     <section class="panel" data-panel="today">
-      <div class="hero surface">
+      <div class="hero surface glz1-raised">
         <p class="eyebrow">Today</p>
         <h1>Your health, without invented data.</h1>
         <p class="hero-copy">No health source is connected in this foundation build. Cards stay empty until a future governed source provides real measurements.</p>
-        <div class="status-row" role="status"><span class="status-dot" aria-hidden="true"></span><span>Data sources: not connected</span></div>
+        <div class="status-row glz1-capsule" role="status"><span class="status-dot" aria-hidden="true"></span><span>Data sources: not connected</span></div>
       </div>
 
       <section aria-labelledby="overview-title">
@@ -41,34 +42,34 @@
           <span class="quiet-label">Foundation</span>
         </div>
         <div class="card-grid">
-          <article class="metric-card surface"><div class="metric-icon" aria-hidden="true">A</div><div><h3>Activity</h3><p>Steps, distance, active time and workouts.</p></div><span class="state-chip">Not connected</span></article>
-          <article class="metric-card surface"><div class="metric-icon" aria-hidden="true">S</div><div><h3>Sleep</h3><p>Sleep sessions, duration and supported stages.</p></div><span class="state-chip">Not connected</span></article>
-          <article class="metric-card surface"><div class="metric-icon" aria-hidden="true">H</div><div><h3>Heart</h3><p>Heart rate and supported vital measurements.</p></div><span class="state-chip">Not connected</span></article>
-          <article class="metric-card surface"><div class="metric-icon" aria-hidden="true">B</div><div><h3>Body</h3><p>Weight and supported body measurements.</p></div><span class="state-chip">Not connected</span></article>
-          <article class="metric-card surface"><div class="metric-icon" aria-hidden="true">N</div><div><h3>Nutrition & hydration</h3><p>Food, nutrients and water when enabled.</p></div><span class="state-chip">Not connected</span></article>
-          <article class="metric-card surface"><div class="metric-icon" aria-hidden="true">M</div><div><h3>Mindfulness</h3><p>User-controlled wellbeing and mindfulness records.</p></div><span class="state-chip">Not connected</span></article>
+          <article class="metric-card surface glz1-raised"><div class="metric-icon" aria-hidden="true">A</div><div><h3>Activity</h3><p>Steps, distance, active time and workouts.</p></div><span class="state-chip">Not connected</span></article>
+          <article class="metric-card surface glz1-raised"><div class="metric-icon" aria-hidden="true">S</div><div><h3>Sleep</h3><p>Sleep sessions, duration and supported stages.</p></div><span class="state-chip">Not connected</span></article>
+          <article class="metric-card surface glz1-raised"><div class="metric-icon" aria-hidden="true">H</div><div><h3>Heart</h3><p>Heart rate and supported vital measurements.</p></div><span class="state-chip">Not connected</span></article>
+          <article class="metric-card surface glz1-raised"><div class="metric-icon" aria-hidden="true">B</div><div><h3>Body</h3><p>Weight and supported body measurements.</p></div><span class="state-chip">Not connected</span></article>
+          <article class="metric-card surface glz1-raised"><div class="metric-icon" aria-hidden="true">N</div><div><h3>Nutrition & hydration</h3><p>Food, nutrients and water when enabled.</p></div><span class="state-chip">Not connected</span></article>
+          <article class="metric-card surface glz1-raised"><div class="metric-icon" aria-hidden="true">M</div><div><h3>Mindfulness</h3><p>User-controlled wellbeing and mindfulness records.</p></div><span class="state-chip">Not connected</span></article>
         </div>
       </section>
     </section>
 
     <section class="panel" data-panel="trends" hidden>
-      <div class="surface empty-state"><p class="eyebrow">Trends</p><h1>No trends yet</h1><p>Trend calculations will appear only after supported, provenance-backed health records exist.</p></div>
+      <div class="surface empty-state glz1-raised"><p class="eyebrow">Trends</p><h1>No trends yet</h1><p>Trend calculations will appear only after supported, provenance-backed health records exist.</p></div>
     </section>
 
     <section class="panel" data-panel="data" hidden>
-      <div class="surface empty-state"><p class="eyebrow">Data</p><h1>No connected sources</h1><p>Android Health Connect and governed GoreeCloud synchronization are planned. This build has no health-data upload or persistence path.</p><button class="secondary-action" type="button" data-open-connections>Connection details</button></div>
+      <div class="surface empty-state glz1-raised"><p class="eyebrow">Data</p><h1>No connected sources</h1><p>Android Health Connect and governed GoreeCloud synchronization are planned. This build has no health-data upload or persistence path.</p><button class="glz1-button secondary-action" data-variant="secondary" type="button" data-open-connections>Connection details</button></div>
     </section>
 
     <section class="panel" data-panel="settings" hidden>
-      <div class="surface settings-card"><p class="eyebrow">Settings</p><h1>Foundation controls</h1><dl><div><dt>Health data</dt><dd>Not connected</dd></div><div><dt>Cloud synchronization</dt><dd>Unavailable</dd></div><div><dt>Privacy Shield runtime</dt><dd>Not integrated</dd></div><div><dt>GLAZE UI consumer acceptance</dt><dd>Pending</dd></div></dl></div>
+      <div class="surface settings-card glz1-raised"><p class="eyebrow">Settings</p><h1>Foundation controls</h1><dl><div><dt>Health data</dt><dd>Not connected</dd></div><div><dt>Cloud synchronization</dt><dd>Unavailable</dd></div><div><dt>Privacy Shield runtime</dt><dd>Not integrated</dd></div><div><dt>GLAZE UI</dt><dd>V1.3.0 source pinned · acceptance pending</dd></div></dl></div>
     </section>
   </main>
 
   <dialog id="connections-dialog" aria-labelledby="connections-title">
-    <form method="dialog" class="dialog-card">
+    <form method="dialog" class="dialog-card glz1-raised">
       <div><p class="eyebrow">Data sources</p><h2 id="connections-title">Connections are not enabled yet</h2></div>
       <p>The foundation deliberately does not request health permissions or connect cloud accounts. Android Health Connect will be added only after the required privacy, provenance, security, and lifecycle controls are implemented.</p>
-      <button class="primary-action" value="close">Got it</button>
+      <button class="glz1-button" data-variant="primary" value="close">Got it</button>
     </form>
   </dialog>
 

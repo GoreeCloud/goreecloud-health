@@ -1,23 +1,45 @@
 const navItems = [...document.querySelectorAll('[data-panel-target]')];
 const panels = [...document.querySelectorAll('[data-panel]')];
+const main = document.querySelector('#main');
 const dialog = document.querySelector('#connections-dialog');
+const panelNames = new Set(panels.map((panel) => panel.dataset.panel));
 
-function showPanel(name) {
+function panelFromLocation() {
+  const candidate = window.location.hash.replace(/^#/, '');
+  return panelNames.has(candidate) ? candidate : 'today';
+}
+
+function showPanel(name, { updateLocation = false, focusMain = true } = {}) {
+  const target = panelNames.has(name) ? name : 'today';
+
   navItems.forEach((item) => {
-    const active = item.dataset.panelTarget === name;
-    item.classList.toggle('is-active', active);
-    if (active) item.setAttribute('aria-current', 'page');
-    else item.removeAttribute('aria-current');
+    const active = item.dataset.panelTarget === target;
+    if (active) {
+      item.setAttribute('aria-current', 'page');
+      item.dataset.state = 'selected';
+    } else {
+      item.removeAttribute('aria-current');
+      item.removeAttribute('data-state');
+    }
   });
 
   panels.forEach((panel) => {
-    panel.hidden = panel.dataset.panel !== name;
+    panel.hidden = panel.dataset.panel !== target;
   });
 
-  document.querySelector('#main').focus?.({ preventScroll: true });
+  if (updateLocation && window.location.hash !== `#${target}`) {
+    window.history.pushState({ panel: target }, '', `#${target}`);
+  }
+
+  if (focusMain) main.focus({ preventScroll: true });
 }
 
-navItems.forEach((item) => item.addEventListener('click', () => showPanel(item.dataset.panelTarget)));
+navItems.forEach((item) => {
+  item.addEventListener('click', () => showPanel(item.dataset.panelTarget, { updateLocation: true }));
+});
+
+window.addEventListener('popstate', () => showPanel(panelFromLocation(), { focusMain: false }));
+window.addEventListener('hashchange', () => showPanel(panelFromLocation(), { focusMain: false }));
 
 document.querySelectorAll('[data-open-connections]').forEach((button) => {
   button.addEventListener('click', () => {
@@ -25,3 +47,5 @@ document.querySelectorAll('[data-open-connections]').forEach((button) => {
     else dialog.setAttribute('open', '');
   });
 });
+
+showPanel(panelFromLocation(), { focusMain: false });
