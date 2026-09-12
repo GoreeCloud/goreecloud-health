@@ -10,6 +10,7 @@
     "exercise.session",
     "sleep.session",
     "heart.rate",
+    "body.height",
     "body.weight",
     "hydration.water"
   ],
