@@ -33,25 +33,25 @@ Current type-specific source contracts are:
 - `activity.active-energy` — active energy excluding basal energy over a required positive-duration interval, with bounded value `0..1000000` and canonical source-level unit `kcal`.
 - `activity.active-time` — source-provided non-negative active duration using canonical source-level unit `s` within a required positive observation interval; the duration may not exceed the enclosing interval and is not derived from other GoreeCloud Health records.
 - `activity.intensity` — positive-duration activity-intensity interval classified exactly as `moderate` or `vigorous`; it is a source-level classification boundary, not a duration-total or weighted-intensity-minute aggregate.
-- `exercise.session` — positive-duration exercise interval with a deliberately empty payload until governed exercise classification/detail semantics are defined.
+- `exercise.session` — positive-duration exercise interval. The payload may be empty or contain `source_classification` with a required namespaced `system`, opaque bounded `code`, and optional bounded `label`. This preserves the source's exercise type without asserting that different provider codes are equivalent.
 - `sleep.session` — positive-duration sleep interval whose payload may remain empty or contain ordered, non-overlapping source-supported stage intervals. Supported stage values are `unknown`, `awake`, `sleeping`, `out-of-bed`, `awake-in-bed`, `light`, `deep`, and `rem`; gaps are allowed and missing stage detail remains missing.
 - `heart.rate` — bounded integer measurement using canonical source-level unit `bpm`.
 - `body.weight` — positive bounded measurement using canonical source-level unit `kg`.
 - `hydration.water` — positive bounded water volume using canonical source-level unit `mL`.
 
-All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. The active-energy, active-time, activity-intensity, and sleep-stage semantics are normalization boundaries only; they do not calculate energy, infer activity, authorize ingestion, establish a runtime provider mapping, combine records, aggregate duration across records/sources, compute sleep quality, or calculate weighted intensity minutes. Exercise classification/details beyond the session boundary, additional vital/body, broader nutrition, and wellbeing contracts remain planned rather than inferred from these types.
+All current fixtures are repository-owned synthetic records. No Health Connect or real user record is read by this implementation. Exercise source classification deliberately preserves provider/source semantics without defining a GoreeCloud cross-provider exercise taxonomy. The active-energy, active-time, activity-intensity, exercise-classification, and sleep-stage semantics are normalization/preservation boundaries only; they do not authorize ingestion, establish a runtime provider mapping, combine records, aggregate duration, compute scores, or infer provider equivalence. Additional exercise details, additional vital/body, broader nutrition, and wellbeing contracts remain planned.
 
 ### Android interoperability reference
 
-For future Android interoperability, the `activity.intensity` contract deliberately matches the bounded source semantics of Health Connect's feature-gated `ActivityIntensityRecord`: a start/end interval plus either moderate or vigorous intensity. Current Android Health Connect sleep sessions can include optional nested stage intervals; GoreeCloud Health mirrors that bounded stage model while preserving stage-less sessions and using provider-neutral string values. Health Connect separately exposes aggregate behaviors, but GoreeCloud Health does not currently implement or authorize activity or sleep aggregate/quality calculations. The GoreeCloud `activity.active-time` contract is intentionally provider-neutral and does not claim a Health Connect record mapping. A future provider adapter must feature-check applicable platform capabilities, request only governed permissions, preserve provider provenance, and pass Privacy Shield operation-level authorization/runtime acceptance before real records are processed.
+Current Android Health Connect requires an exercise type for `ExerciseSessionRecord` and exposes a large provider-specific type set. GoreeCloud Health deliberately does not copy that enum into its core canonical model. A future Android adapter can retain the exact Health Connect exercise type under a namespaced source-classification system while a separately governed mapping layer decides whether any cross-provider GoreeCloud category is justified. Health Connect sleep sessions can include optional nested stage intervals; GoreeCloud Health mirrors that bounded stage model while preserving stage-less sessions. The GoreeCloud `activity.active-time` contract remains provider-neutral and does not claim a Health Connect record mapping. Any real provider adapter must request only governed permissions, preserve source-native identity/provenance, and pass Privacy Shield operation-level authorization/runtime acceptance before real records are processed.
 
 ## Reconciliation policy
 
-The Development source contract includes `contracts/health-reconciliation-policy.v1.json` with schema version `goreecloud.health.reconciliation-policy.v1`. It applies exactly to the ten current record types and turns the current conservative reconciliation baseline into an explicit machine-readable policy. Sleep stages are nested source data within `sleep.session`, share the session source/provenance, and are not a separately reconciled `sleep.stage` record family.
+The Development source contract includes `contracts/health-reconciliation-policy.v1.json` with schema version `goreecloud.health.reconciliation-policy.v1`. It applies exactly to the ten current record types. Exercise source classification and sleep stages are nested source details within their parent session records and do not become separate record families.
 
-Trustworthy `(source_id, source_record_id)` identifies exact same-source re-observation when source-native identity exists. Without `source_record_id`, heuristic value/time deduplication is unauthorized. Across different sources, matching value/time does not authorize deduplication, aggregation, or conflict resolution. Replacement/correction is explicit-supersession-only.
+Trustworthy `(source_id, source_record_id)` identifies exact same-source re-observation when source-native identity exists. Without `source_record_id`, heuristic value/time deduplication is unauthorized. Across different sources, matching value/time or matching source-classification labels/codes does not authorize deduplication, equivalence, aggregation, or conflict resolution. Replacement/correction is explicit-supersession-only.
 
-This is a refusal boundary, not a complete multi-source aggregation system. Any future rule that combines, prefers, suppresses, ranks, merges, or derives values across sources requires separately governed type/domain semantics and validation before use.
+This is a refusal boundary, not a complete multi-source aggregation or semantic-equivalence system. Any future rule that combines, prefers, suppresses, ranks, maps, merges, or derives values across sources requires separately governed type/domain semantics and validation before use.
 
 ## Privacy Shield source boundary
 
@@ -70,12 +70,13 @@ The product roadmap covers activity/exercise, sleep, heart/vitals, body measurem
 1. Every measurement must preserve its source/provenance.
 2. Missing data remains missing; the application must not synthesize health readings and present them as measured.
 3. Duplicate records from multiple sources require deterministic governed reconciliation rather than silent double counting.
-4. The current reconciliation policy does not authorize cross-source aggregation or conflict resolution, including for active-energy, active-time, activity-intensity, sleep sessions, or nested sleep stages.
-5. Time zone, unit, precision, and source semantics must be retained or transformed explicitly.
-6. Canonical contract units are normalization targets, not permission to discard original source-unit provenance or precision.
-7. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
-8. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
-9. Schema, reconciliation-policy, or manifest validity is not authorization to collect, retain, disclose, synchronize, aggregate, interpret, calculate, derive, score, or otherwise process health information beyond the declared and accepted operation.
+4. Source exercise classifications are retained as source semantics; matching labels/codes from different classification systems are not automatically equivalent.
+5. The current reconciliation policy does not authorize cross-source aggregation or conflict resolution, including for activity, exercise, sleep sessions, or nested source details.
+6. Time zone, unit, precision, and source semantics must be retained or transformed explicitly.
+7. Canonical contract units are normalization targets, not permission to discard original source-unit provenance or precision.
+8. Android Health Connect is the first planned device health-data integration, gated by Privacy Shield authorization and explicit Android permission handling.
+9. Web cloud access is not enabled until identity, authorization, privacy, security, recovery, and API contracts are implemented and verified.
+10. Schema, reconciliation-policy, or manifest validity is not authorization to collect, retain, disclose, synchronize, map, aggregate, interpret, calculate, derive, score, or otherwise process health information beyond the declared and accepted operation.
 
 ## Medical-safety boundary
 
