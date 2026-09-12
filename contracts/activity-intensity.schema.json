@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goreecloud.com/schemas/health/activity-intensity.v1.json",
+  "title": "GoreeCloud Health Activity Intensity v1",
+  "allOf": [
+    {"$ref": "./health-record-envelope.schema.json"},
+    {
+      "type": "object",
+      "properties": {
+        "record_type": {"const": "activity.intensity"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level"],
+          "properties": {
+            "level": {"enum": ["moderate", "vigorous"]}
+          }
+        }
+      }
+    }
+  ]
+}
