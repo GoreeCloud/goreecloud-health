@@ -22,6 +22,7 @@ const paths = {
     activityIntensity: 'contracts/examples/activity-intensity.synthetic.json',
     exercise: 'contracts/examples/exercise-session.synthetic.json',
     sleep: 'contracts/examples/sleep-session.synthetic.json',
+    sleepStaged: 'contracts/examples/sleep-session-staged.synthetic.json',
     heartRate: 'contracts/examples/heart-rate.synthetic.json',
     bodyWeight: 'contracts/examples/body-weight.synthetic.json',
     water: 'contracts/examples/hydration-water.synthetic.json'
@@ -52,6 +53,7 @@ const timeZonePattern = /^[A-Za-z0-9._+-]+(?:\/[A-Za-z0-9._+-]+)+$/;
 const offsetAwareDateTimePattern = /(?:Z|[+-]\d{2}:\d{2})$/;
 const validOffsetAwareDateTime = (value) => typeof value === 'string' && offsetAwareDateTimePattern.test(value) && Number.isFinite(Date.parse(value));
 const boundedString = (value, min, max) => typeof value === 'string' && value.length >= min && value.length <= max;
+const sleepStageTypes = ['unknown', 'awake', 'sleeping', 'out-of-bed', 'awake-in-bed', 'light', 'deep', 'rem'];
 
 function validateSource(source) {
   hasOnly(source, ['source_id', 'source_kind', 'source_record_id', 'source_display_name'], 'source');
@@ -103,7 +105,28 @@ function validateActiveEnergy(record) { exactPayload(record, 'activity.active-en
 function validateActiveTime(record) { exactPayload(record, 'activity.active-time', ['value', 'unit']); expect('end_time' in record.interval, 'active time requires end_time'); const durationSeconds = (Date.parse(record.interval.end_time) - Date.parse(record.interval.start_time)) / 1000; expect(durationSeconds > 0, 'active time observation interval duration must be positive'); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value >= 0 && record.payload.value <= 2147483647, 'active time must be a bounded non-negative duration'); expect(record.payload.unit === 's', 'active time unit must be s'); expect(record.payload.value <= durationSeconds, 'active time must not exceed the enclosing observation interval'); }
 function validateActivityIntensity(record) { exactPayload(record, 'activity.intensity', ['level']); expect('end_time' in record.interval, 'activity intensity requires end_time'); expect(Date.parse(record.interval.end_time) > Date.parse(record.interval.start_time), 'activity intensity interval duration must be positive'); expect(['moderate', 'vigorous'].includes(record.payload.level), 'activity intensity level must be moderate or vigorous'); }
 function validateExercise(record) { exactPayload(record, 'exercise.session', []); expect('end_time' in record.interval, 'exercise session requires end_time'); expect(Date.parse(record.interval.end_time) > Date.parse(record.interval.start_time), 'exercise session duration must be positive'); }
-function validateSleep(record) { exactPayload(record, 'sleep.session', []); expect('end_time' in record.interval, 'sleep session requires end_time'); expect(Date.parse(record.interval.end_time) > Date.parse(record.interval.start_time), 'sleep session duration must be positive'); }
+function validateSleep(record) {
+  exactPayload(record, 'sleep.session', ['stages']);
+  expect('end_time' in record.interval, 'sleep session requires end_time');
+  const sessionStart = Date.parse(record.interval.start_time);
+  const sessionEnd = Date.parse(record.interval.end_time);
+  expect(sessionEnd > sessionStart, 'sleep session duration must be positive');
+  if (!('stages' in record.payload)) return;
+  expect(Array.isArray(record.payload.stages) && record.payload.stages.length <= 4096, 'sleep stages must be a bounded array');
+  let previousEnd = null;
+  for (const [index, stage] of record.payload.stages.entries()) {
+    hasExactKeys(stage, ['start_time', 'end_time', 'stage'], `sleep stage ${index}`);
+    expect(validOffsetAwareDateTime(stage.start_time), `sleep stage ${index} start_time must be offset-aware`);
+    expect(validOffsetAwareDateTime(stage.end_time), `sleep stage ${index} end_time must be offset-aware`);
+    const stageStart = Date.parse(stage.start_time);
+    const stageEnd = Date.parse(stage.end_time);
+    expect(stageEnd > stageStart, `sleep stage ${index} duration must be positive`);
+    expect(stageStart >= sessionStart && stageEnd <= sessionEnd, `sleep stage ${index} must remain within the parent sleep session`);
+    expect(sleepStageTypes.includes(stage.stage), `sleep stage ${index} type is unsupported`);
+    if (previousEnd !== null) expect(stageStart >= previousEnd, 'sleep stages must be time-ordered and non-overlapping');
+    previousEnd = stageEnd;
+  }
+}
 function validateHeartRate(record) { exactPayload(record, 'heart.rate', ['value', 'unit']); expect(Number.isInteger(record.payload.value) && record.payload.value >= 1 && record.payload.value <= 300, 'heart rate must be 1..300 bpm'); expect(record.payload.unit === 'bpm', 'heart rate unit must be bpm'); }
 function validateBodyWeight(record) { exactPayload(record, 'body.weight', ['value', 'unit']); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value > 0 && record.payload.value <= 1000, 'body weight must be bounded'); expect(record.payload.unit === 'kg', 'body weight unit must be kg'); }
 function validateWater(record) { exactPayload(record, 'hydration.water', ['value', 'unit']); expect(typeof record.payload.value === 'number' && Number.isFinite(record.payload.value) && record.payload.value > 0 && record.payload.value <= 100000, 'water value must be bounded'); expect(record.payload.unit === 'mL', 'water unit must be mL'); }
@@ -174,6 +197,7 @@ validateActiveTime(fixtures.activeTime);
 validateActivityIntensity(fixtures.activityIntensity);
 validateExercise(fixtures.exercise);
 validateSleep(fixtures.sleep);
+validateSleep(fixtures.sleepStaged);
 validateHeartRate(fixtures.heartRate);
 validateBodyWeight(fixtures.bodyWeight);
 validateWater(fixtures.water);
@@ -195,6 +219,12 @@ const negatives = [
   ['zero exercise duration', validateExercise, (() => { const x = structuredClone(fixtures.exercise); x.interval.end_time = x.interval.start_time; return x; })()],
   ['ungoverned exercise payload', validateExercise, (() => { const x = structuredClone(fixtures.exercise); x.payload.activity_type = 'running'; return x; })()],
   ['zero sleep duration', validateSleep, (() => { const x = structuredClone(fixtures.sleep); x.interval.end_time = x.interval.start_time; return x; })()],
+  ['unsupported sleep stage', validateSleep, (() => { const x = structuredClone(fixtures.sleepStaged); x.payload.stages[0].stage = 'nap'; return x; })()],
+  ['zero sleep-stage duration', validateSleep, (() => { const x = structuredClone(fixtures.sleepStaged); x.payload.stages[0].end_time = x.payload.stages[0].start_time; return x; })()],
+  ['sleep stage outside parent session', validateSleep, (() => { const x = structuredClone(fixtures.sleepStaged); x.payload.stages[0].start_time = '2026-09-08T22:20:00-05:00'; return x; })()],
+  ['overlapping sleep stages', validateSleep, (() => { const x = structuredClone(fixtures.sleepStaged); x.payload.stages[1].start_time = '2026-09-08T22:40:00-05:00'; return x; })()],
+  ['sleep-stage timestamp without UTC offset', validateSleep, (() => { const x = structuredClone(fixtures.sleepStaged); x.payload.stages[0].start_time = '2026-09-08T22:30:00'; return x; })()],
+  ['unknown sleep-stage field', validateSleep, (() => { const x = structuredClone(fixtures.sleepStaged); x.payload.stages[0].note = 'synthetic'; return x; })()],
   ['heart rate too high', validateHeartRate, (() => { const x = structuredClone(fixtures.heartRate); x.payload.value = 301; return x; })()],
   ['zero body weight', validateBodyWeight, (() => { const x = structuredClone(fixtures.bodyWeight); x.payload.value = 0; return x; })()],
   ['wrong hydration unit', validateWater, (() => { const x = structuredClone(fixtures.water); x.payload.unit = 'L'; return x; })()],
@@ -222,4 +252,4 @@ for (const [name, candidate] of reconciliationNegatives) {
   expect(rejected, `reconciliation policy negative case must fail closed: ${name}`);
 }
 
-console.log('Validated GoreeCloud Health record contracts: 12 schemas/contracts, 1 reconciliation policy, 10 synthetic fixtures, 25 record negative cases, and 2 reconciliation-policy negative cases.');
+console.log('Validated GoreeCloud Health record contracts: 12 schemas/contracts, 1 reconciliation policy, 11 synthetic fixtures, 31 record negative cases, and 2 reconciliation-policy negative cases.');

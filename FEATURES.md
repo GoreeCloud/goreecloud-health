@@ -23,10 +23,11 @@ This document records **current repository functionality**, not the desired end 
 - `activity.active-time` represents a source-provided non-negative active duration in seconds within a required positive observation interval. Validation rejects an active duration longer than the observation interval. The contract does not define activity-detection semantics and does not derive active time from steps, energy, intensity, exercise, or other records.
 - `activity.intensity` represents a positive-duration interval with exact `moderate` or `vigorous` source classification. It is compatible with the bounded semantics of Health Connect's feature-gated activity-intensity record, but no provider mapping, Health Connect feature check, permission request, aggregation, or intensity-minute calculation is implemented.
 - `exercise.session` is currently a positive-duration session boundary with an intentionally empty payload; exercise classification/detail semantics are not inferred yet.
+- `sleep.session` supports a positive-duration stage-less session and optional nested source-supported stages. Stage types are bounded to `unknown`, `awake`, `sleeping`, `out-of-bed`, `awake-in-bed`, `light`, `deep`, and `rem`; entries must be offset-aware, time-ordered, non-overlapping, and inside the parent session. Gaps are allowed so missing stage data stays missing.
 - Canonical source-level units where applicable: distance in meters (`m`), active energy in kilocalories (`kcal`), active time in seconds (`s`), heart rate in beats per minute (`bpm`), body weight in kilograms (`kg`), and water volume in milliliters (`mL`).
-- Synthetic-only fixtures for all ten currently supported source-contract types; none are user health data.
-- Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, bounded measurement values, active-time interval/value consistency, and activity-intensity classification/duration rejection cases.
-- Machine-readable `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json` covering exactly the ten current record types.
+- Synthetic-only fixtures for all ten currently supported source-contract types, including both stage-less and staged sleep examples; none are user health data.
+- Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, bounded measurement values, active-time interval/value consistency, activity-intensity classification/duration, and sleep-stage containment/order/overlap/type/timestamp boundaries.
+- Machine-readable `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json` covering exactly the ten current record types. Sleep stages remain nested session data rather than a separate record type.
 - Reconciliation policy recognizes trustworthy same-source `(source_id, source_record_id)` re-observation, requires explicit lifecycle supersession for replacement, and keeps heuristic deduplication without source-native identity, cross-source value/time deduplication, cross-source aggregation, and cross-source conflict resolution explicitly unauthorized.
 - Fail-closed reconciliation-policy validation rejects cross-source aggregation enablement and ungoverned record-type expansion.
 
@@ -36,9 +37,9 @@ The health-record contracts, reconciliation policy, and Privacy Shield source ma
 
 - Android Health Connect read/write integration.
 - Step/distance/active-energy/active-time/activity-intensity/exercise/sleep/heart/body/hydration ingestion from real user sources.
-- User-facing active-time totals across records/sources, moderate/vigorous duration totals, or weighted intensity-minute aggregation.
+- User-facing active-time totals across records/sources, moderate/vigorous duration totals, weighted intensity-minute aggregation, or sleep-stage duration/quality analytics.
 - Exercise classification/detail payloads beyond the bounded `exercise.session` interval contract.
-- Type-specific normalized contracts for sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
+- Type-specific normalized contracts for additional vitals, additional body measurements, broader nutrition, and wellbeing records.
 - Positive domain-specific cross-source aggregation/conflict-resolution rules beyond the fail-closed reconciliation policy.
 - Governed non-empty Privacy Shield health-data purposes/resources and operation-level authorization.
 - Privacy Shield adapter capabilities or runtime acceptance.

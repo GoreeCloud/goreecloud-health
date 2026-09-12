@@ -10,7 +10,34 @@
         "record_type": {"const": "sleep.session"},
         "payload": {
           "type": "object",
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": {
+            "stages": {
+              "type": "array",
+              "maxItems": 4096,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["start_time", "end_time", "stage"],
+                "properties": {
+                  "start_time": {"type": "string", "format": "date-time"},
+                  "end_time": {"type": "string", "format": "date-time"},
+                  "stage": {
+                    "enum": [
+                      "unknown",
+                      "awake",
+                      "sleeping",
+                      "out-of-bed",
+                      "awake-in-bed",
+                      "light",
+                      "deep",
+                      "rem"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
