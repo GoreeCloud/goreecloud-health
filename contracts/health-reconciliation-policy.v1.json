@@ -5,6 +5,7 @@
     "activity.steps",
     "activity.distance",
     "activity.active-energy",
+    "activity.intensity",
     "exercise.session",
     "sleep.session",
     "heart.rate",

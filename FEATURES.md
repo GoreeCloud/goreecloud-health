@@ -18,13 +18,14 @@ This document records **current repository functionality**, not the desired end 
 
 - Versioned `goreecloud.health.record.v1` normalization envelope for stable record identity, time context, source attribution, provenance, lifecycle state, and a domain payload binding point.
 - Closed `health-source.v1` source identity/source-kind contract.
-- Type-specific schemas for `activity.steps`, `activity.distance`, `activity.active-energy`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`.
+- Type-specific schemas for `activity.steps`, `activity.distance`, `activity.active-energy`, `activity.intensity`, `exercise.session`, `sleep.session`, `heart.rate`, `body.weight`, and `hydration.water`.
 - `activity.active-energy` represents active energy excluding basal energy across a positive-duration interval, using canonical source-level unit `kcal` and a bounded value of `0..1000000`; the current implementation is contract/fixture validation only.
+- `activity.intensity` represents a positive-duration interval with exact `moderate` or `vigorous` source classification. It is compatible with the bounded semantics of Health Connect's feature-gated activity-intensity record, but no provider mapping, Health Connect feature check, permission request, aggregation, or intensity-minute calculation is implemented.
 - `exercise.session` is currently a positive-duration session boundary with an intentionally empty payload; exercise classification/detail semantics are not inferred yet.
 - Canonical source-level units where applicable: distance in meters (`m`), active energy in kilocalories (`kcal`), heart rate in beats per minute (`bpm`), body weight in kilograms (`kg`), and water volume in milliliters (`mL`).
-- Synthetic-only fixtures for all eight currently supported source-contract types; none are user health data.
-- Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, and bounded measurement values, including active-energy interval/unit/value rejection cases.
-- Machine-readable `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json` covering exactly the eight current record types.
+- Synthetic-only fixtures for all nine currently supported source-contract types; none are user health data.
+- Fail-closed contract validation covering unknown fields, source/provenance boundaries, record identifiers, interval ordering/session duration, type-specific units, bounded measurement values, and activity-intensity classification/duration rejection cases.
+- Machine-readable `goreecloud.health.reconciliation-policy.v1` in `contracts/health-reconciliation-policy.v1.json` covering exactly the nine current record types.
 - Reconciliation policy recognizes trustworthy same-source `(source_id, source_record_id)` re-observation, requires explicit lifecycle supersession for replacement, and keeps heuristic deduplication without source-native identity, cross-source value/time deduplication, cross-source aggregation, and cross-source conflict resolution explicitly unauthorized.
 - Fail-closed reconciliation-policy validation rejects cross-source aggregation enablement and ungoverned record-type expansion.
 
@@ -33,8 +34,8 @@ The health-record contracts, reconciliation policy, and Privacy Shield source ma
 ## Not implemented yet
 
 - Android Health Connect read/write integration.
-- Step/distance/active-energy/exercise/sleep/heart/body/hydration ingestion from real user sources.
-- Active-time normalized contract beyond the new active-energy boundary.
+- Step/distance/active-energy/activity-intensity/exercise/sleep/heart/body/hydration ingestion from real user sources.
+- Active-time, moderate/vigorous duration-total, or weighted intensity-minute aggregation from activity-intensity intervals.
 - Exercise classification/detail payloads beyond the bounded `exercise.session` interval contract.
 - Type-specific normalized contracts for sleep stages, additional vitals, additional body measurements, broader nutrition, and wellbeing records.
 - Positive domain-specific cross-source aggregation/conflict-resolution rules beyond the fail-closed reconciliation policy.
