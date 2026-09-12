@@ -47,7 +47,8 @@ const hasExactKeys = (value, expected, context) => {
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const recordTypePattern = /^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$/;
 const timeZonePattern = /^[A-Za-z0-9._+-]+(?:\/[A-Za-z0-9._+-]+)+$/;
-const validDateTime = (value) => typeof value === 'string' && Number.isFinite(Date.parse(value));
+const offsetAwareDateTimePattern = /(?:Z|[+-]\d{2}:\d{2})$/;
+const validOffsetAwareDateTime = (value) => typeof value === 'string' && offsetAwareDateTimePattern.test(value) && Number.isFinite(Date.parse(value));
 
 function validateSource(source) {
   hasOnly(source, ['source_id', 'source_kind', 'source_record_id', 'source_display_name'], 'source');
@@ -65,9 +66,9 @@ function validateRecord(record) {
   expect(typeof record.record_id === 'string' && idPattern.test(record.record_id), 'record_id must be canonical and bounded');
   expect(typeof record.record_type === 'string' && recordTypePattern.test(record.record_type), 'record_type must be namespaced');
   hasOnly(record.interval, ['start_time', 'end_time', 'time_zone', 'utc_offset_minutes'], 'interval');
-  expect(validDateTime(record.interval.start_time), 'start_time must be an offset-aware date-time');
+  expect(validOffsetAwareDateTime(record.interval.start_time), 'start_time must be an offset-aware date-time');
   if ('end_time' in record.interval) {
-    expect(validDateTime(record.interval.end_time), 'end_time must be an offset-aware date-time');
+    expect(validOffsetAwareDateTime(record.interval.end_time), 'end_time must be an offset-aware date-time');
     expect(Date.parse(record.interval.end_time) >= Date.parse(record.interval.start_time), 'end_time must not precede start_time');
   }
   expect(typeof record.interval.time_zone === 'string' && timeZonePattern.test(record.interval.time_zone), 'time_zone must be an IANA-style zone identifier');
@@ -75,7 +76,8 @@ function validateRecord(record) {
   validateSource(record.source);
   hasOnly(record.provenance, ['ingest_method', 'observed_at', 'imported_at', 'transformed', 'transformation_notes'], 'provenance');
   expect(['synthetic-fixture', 'health-connect', 'manual-entry', 'import'].includes(record.provenance.ingest_method), 'ingest_method is unsupported');
-  expect(validDateTime(record.provenance.observed_at), 'observed_at must be a date-time');
+  expect(validOffsetAwareDateTime(record.provenance.observed_at), 'observed_at must be an offset-aware date-time');
+  if ('imported_at' in record.provenance) expect(validOffsetAwareDateTime(record.provenance.imported_at), 'imported_at must be an offset-aware date-time');
   expect(typeof record.provenance.transformed === 'boolean', 'transformed must be boolean');
   if (record.provenance.transformed) expect(typeof record.provenance.transformation_notes === 'string' && record.provenance.transformation_notes.length >= 1, 'transformed records require transformation_notes');
   hasOnly(record.lifecycle, ['status', 'supersedes_record_id'], 'lifecycle');
@@ -183,7 +185,10 @@ const negatives = [
   ['heart rate too high', validateHeartRate, (() => { const x = structuredClone(fixtures.heartRate); x.payload.value = 301; return x; })()],
   ['zero body weight', validateBodyWeight, (() => { const x = structuredClone(fixtures.bodyWeight); x.payload.value = 0; return x; })()],
   ['wrong hydration unit', validateWater, (() => { const x = structuredClone(fixtures.water); x.payload.unit = 'L'; return x; })()],
-  ['noncanonical id', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.record_id = ' synthetic.steps.001 '; return x; })()]
+  ['noncanonical id', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.record_id = ' synthetic.steps.001 '; return x; })()],
+  ['start_time without UTC offset', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.interval.start_time = '2026-09-11T18:00:00'; return x; })()],
+  ['observed_at without UTC offset', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.provenance.observed_at = '2026-09-11T23:35:00'; return x; })()],
+  ['invalid imported_at', validateSteps, (() => { const x = structuredClone(fixtures.steps); x.provenance.imported_at = 'not-a-date'; return x; })()]
 ];
 for (const [name, validator, candidate] of negatives) {
   let rejected = false;
@@ -201,4 +206,4 @@ for (const [name, candidate] of reconciliationNegatives) {
   expect(rejected, `reconciliation policy negative case must fail closed: ${name}`);
 }
 
-console.log('Validated GoreeCloud Health record contracts: 11 schemas/contracts, 1 reconciliation policy, 9 synthetic fixtures, 15 record negative cases, and 2 reconciliation-policy negative cases.');
+console.log('Validated GoreeCloud Health record contracts: 11 schemas/contracts, 1 reconciliation policy, 9 synthetic fixtures, 18 record negative cases, and 2 reconciliation-policy negative cases.');
